@@ -7,11 +7,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static edu.illinois.cs.cogcomp.util.Helper.T;
+import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
+
 import static edu.illinois.cs.cogcomp.util.Helper.Register;
+import static edu.illinois.cs.cogcomp.util.Helper.T;
 import static edu.illinois.cs.cogcomp.util.Helper.apply;
 import static edu.illinois.cs.cogcomp.util.Helper.argmin;
 import static edu.illinois.cs.cogcomp.util.Helper.exist;
@@ -25,17 +26,16 @@ import static edu.illinois.cs.cogcomp.util.Helper.or;
 public class SetCover {
 
 
-
     public static class Neighborhood {
 
-        private static final Map<String,Neighborhood> NeighborhoodMap = new HashMap<>();
+        private static final Map<String, Neighborhood> NeighborhoodMap = new HashMap<>();
 
-        public static Neighborhood makeNeighborhood(String line){
-            if (line.contains(" ")){
+        public static Neighborhood makeNeighborhood(String line) {
+            if (line.contains(" ")) {
                 String id = line.split(" ")[0].trim();
                 String[] adjacent = line.substring(1).trim().split(" ");
-                return new Neighborhood(id,adjacent);
-            }else{
+                return new Neighborhood(id, adjacent);
+            } else {
                 return NeighborhoodMap.get(line.trim());
             }
         }
@@ -46,11 +46,12 @@ public class SetCover {
         private Neighborhood(String id, String[] adjacent) {
             this.id = id;
             this.adjacent = adjacent;
-            NeighborhoodMap.put(id,this);
+            NeighborhoodMap.put(id, this);
         }
 
         public List<Neighborhood> getAdjacent() {
-            return Arrays.stream(this.adjacent).map(x -> makeNeighborhood(x)).collect(Collectors.toList());
+            return Arrays.stream(this.adjacent).map(x -> makeNeighborhood(x))
+                .collect(Collectors.toList());
         }
 
         public String getId() {
@@ -75,31 +76,34 @@ public class SetCover {
         // Now we created a list of object.
         List<Neighborhood>
             city =
-            Arrays.stream(cityData).map(Neighborhood::makeNeighborhood).collect(Collectors.toList());
+            Arrays.stream(cityData).map(Neighborhood::makeNeighborhood)
+                .collect(Collectors.toList());
 
         Register(Neighborhood.class, Neighborhood::getId);
 
         CCMPredicate<Neighborhood> hasStation = makePredicate("hasStation", x -> 1.0);
 
-        Function<Neighborhood, List<FolFormula>>
+        ConstraintFunction<Neighborhood>
             coverageConstraints =
-            x -> {
-                List<FolFormula> constraintsOnNeighborhood = new ArrayList<>();
-                FolFormula hasStationOnX = hasStation.on(T(x));
-                FolFormula hasStationOnAdjacents = exist(x.getAdjacent(), z -> hasStation.on(T(z)));
-                constraintsOnNeighborhood.add(or(hasStationOnX,hasStationOnAdjacents));
-                return constraintsOnNeighborhood;
-            };
+            new ConstraintFunction<>(x ->
+                                     {
+                                         FolFormula hasStationOnX = hasStation.on(T(x));
+                                         FolFormula
+                                             hasStationOnAdjacents =
+                                             exist(x.getAdjacent(), z -> hasStation.on(T(z)));
+                                         return or(hasStationOnX, hasStationOnAdjacents);
+                                     }
+            );
 
-        ILPBaseCCMProblem problem = argmin(Objective.sum(hasStation,city)).
-            subjectTo(apply(city,coverageConstraints)).getProblem();
+        ILPBaseCCMProblem problem = argmin(Objective.sum(hasStation, city)).
+            subjectTo(coverageConstraints.of(city)).getProblem();
 
         problem.solve();
 
         System.out.println("Solution : ");
-        for (Neighborhood n : city){
-            if (problem.isAssigned(hasStation,T(n))){
-                System.out.println("Should select Neighborhood "+n.getId());
+        for (Neighborhood n : city) {
+            if (problem.isAssigned(hasStation, T(n))) {
+                System.out.println("Should select Neighborhood " + n.getId());
             }
         }
 

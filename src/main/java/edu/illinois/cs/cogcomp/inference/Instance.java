@@ -1,4 +1,4 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 /**
  * Created by haowu on 5/14/16.

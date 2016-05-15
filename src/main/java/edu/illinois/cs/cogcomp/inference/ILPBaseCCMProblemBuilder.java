@@ -1,10 +1,8 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.tweety.logics.fol.syntax.FolFormula;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 /**
  * Created by haowu on 5/14/16.

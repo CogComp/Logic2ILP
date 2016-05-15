@@ -1,4 +1,4 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.javailp.Problem;
 import net.sf.tweety.logics.fol.syntax.FolFormula;
@@ -89,7 +89,7 @@ public class ILPBaseCCMProblem {
         return ret;
     }
 
-    public boolean assigned(CCMPredicate p, CCMTerm term){
+    public boolean isAssigned(CCMPredicate p, CCMTerm term){
         boolean assigned = this.predicateMap.get(p.getID()).getAssignment(term) == 1;
         return assigned;
     }

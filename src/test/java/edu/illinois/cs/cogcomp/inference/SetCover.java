@@ -1,4 +1,4 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.tweety.logics.fol.syntax.FolFormula;
 
@@ -10,15 +10,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import util.Helper.*;
-
-import static util.Helper.T;
-import static util.Helper.Register;
-import static util.Helper.apply;
-import static util.Helper.argmin;
-import static util.Helper.exist;
-import static util.Helper.makePredicate;
-import static util.Helper.or;
+import static edu.illinois.cs.cogcomp.util.Helper.T;
+import static edu.illinois.cs.cogcomp.util.Helper.Register;
+import static edu.illinois.cs.cogcomp.util.Helper.apply;
+import static edu.illinois.cs.cogcomp.util.Helper.argmin;
+import static edu.illinois.cs.cogcomp.util.Helper.exist;
+import static edu.illinois.cs.cogcomp.util.Helper.makePredicate;
+import static edu.illinois.cs.cogcomp.util.Helper.or;
 
 
 /**
@@ -100,12 +98,10 @@ public class SetCover {
 
         System.out.println("Solution : ");
         for (Neighborhood n : city){
-            if (problem.assigned(hasStation,T(n))){
-                System.out.println("Should select "+n.getId());
+            if (problem.isAssigned(hasStation,T(n))){
+                System.out.println("Should select Neighborhood "+n.getId());
             }
         }
-
-
 
     }
 

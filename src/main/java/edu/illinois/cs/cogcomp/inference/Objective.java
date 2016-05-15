@@ -1,4 +1,4 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -8,9 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import util.Helper;
-
-import static util.Helper.T;
+import edu.illinois.cs.cogcomp.util.Helper;
 
 /**
  * Created by haowu on 5/14/16.

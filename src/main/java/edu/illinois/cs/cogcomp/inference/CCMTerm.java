@@ -1,4 +1,4 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.tweety.logics.commons.syntax.Constant;
 import net.sf.tweety.logics.commons.syntax.interfaces.Term;

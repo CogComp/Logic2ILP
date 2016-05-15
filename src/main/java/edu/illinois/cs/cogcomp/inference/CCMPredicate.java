@@ -1,4 +1,4 @@
-package inference;
+package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.javailp.Result;
 import net.sf.tweety.logics.commons.syntax.Constant;

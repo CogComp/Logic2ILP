@@ -1,11 +1,7 @@
-package util;
+package edu.illinois.cs.cogcomp.util;
 
-import net.sf.tweety.logics.commons.syntax.Constant;
-import net.sf.tweety.logics.commons.syntax.Predicate;
-import net.sf.tweety.logics.commons.syntax.Variable;
 import net.sf.tweety.logics.fol.syntax.Conjunction;
 import net.sf.tweety.logics.fol.syntax.Disjunction;
-import net.sf.tweety.logics.fol.syntax.FOLAtom;
 import net.sf.tweety.logics.fol.syntax.FolFormula;
 import net.sf.tweety.logics.fol.syntax.Negation;
 
@@ -18,10 +14,10 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import inference.CCMPredicate;
-import inference.CCMTerm;
-import inference.ILPBaseCCMProblemBuilder;
-import inference.Objective;
+import edu.illinois.cs.cogcomp.inference.CCMPredicate;
+import edu.illinois.cs.cogcomp.inference.CCMTerm;
+import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblemBuilder;
+import edu.illinois.cs.cogcomp.inference.Objective;
 
 /**
  * Created by haowu on 5/14/16.

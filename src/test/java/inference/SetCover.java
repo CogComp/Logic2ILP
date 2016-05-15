@@ -4,6 +4,7 @@ import net.sf.tweety.logics.fol.syntax.FolFormula;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import util.Helper.*;
 
 import static util.Helper.T;
 import static util.Helper.Register;
+import static util.Helper.apply;
 import static util.Helper.argmin;
 import static util.Helper.exist;
 import static util.Helper.makePredicate;
@@ -28,7 +30,7 @@ public class SetCover {
 
     public static class Neighborhood {
 
-        private static Map<String,Neighborhood> NeighborhoodMap;
+        private static final Map<String,Neighborhood> NeighborhoodMap = new HashMap<>();
 
         public static Neighborhood makeNeighborhood(String line){
             if (line.contains(" ")){
@@ -46,6 +48,7 @@ public class SetCover {
         private Neighborhood(String id, String[] adjacent) {
             this.id = id;
             this.adjacent = adjacent;
+            NeighborhoodMap.put(id,this);
         }
 
         public List<Neighborhood> getAdjacent() {
@@ -90,10 +93,17 @@ public class SetCover {
                 return constraintsOnNeighborhood;
             };
 
-        ILPBaseCCMProblem problem = argmin(new Objective()).
-            subjectTo(coverageConstraints);
+        ILPBaseCCMProblem problem = argmin(Objective.sum(hasStation,city)).
+            subjectTo(apply(city,coverageConstraints)).getProblem();
 
         problem.solve();
+
+        System.out.println("Solution : ");
+        for (Neighborhood n : city){
+            if (problem.assigned(hasStation,T(n))){
+                System.out.println("Should select "+n.getId());
+            }
+        }
 
 
 

@@ -89,8 +89,16 @@ public class ILPBaseCCMProblem {
         return ret;
     }
 
+    public boolean assigned(CCMPredicate p, CCMTerm term){
+        boolean assigned = this.predicateMap.get(p.getID()).getAssignment(term) == 1;
+        return assigned;
+    }
+
 
     public void debug() {
+        for (FolFormula f : this.constraints){
+            System.out.println(f);
+        }
         this.debug = true;
     }
 }

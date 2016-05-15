@@ -2,6 +2,7 @@ package inference;
 
 import net.sf.tweety.logics.fol.syntax.FolFormula;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
@@ -10,8 +11,22 @@ import java.util.function.Function;
  */
 public class ILPBaseCCMProblemBuilder {
 
-    public ILPBaseCCMProblem subjectTo(
-        Function<?, List<FolFormula>> constraints) {
-        return null;
+    private Objective objective;
+
+    private List<FolFormula> constraints;
+
+    public ILPBaseCCMProblemBuilder subjectTo(
+        List<FolFormula> constraints) {
+        this.constraints = constraints;
+        return this;
     }
+
+    public ILPBaseCCMProblemBuilder setObjective(Objective objective) {
+        this.objective = objective;
+        return this;
+    }
+
+    public ILPBaseCCMProblem getProblem(){
+        return new ILPBaseCCMProblem(objective.objectives,constraints);
+    };
 }

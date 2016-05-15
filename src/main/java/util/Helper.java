@@ -99,11 +99,20 @@ public class Helper {
 
 
     public static ILPBaseCCMProblemBuilder argmin(Objective objective){
-        return null;
+        ILPBaseCCMProblemBuilder builder = new ILPBaseCCMProblemBuilder();
+        builder.setObjective(objective.negative());
+        return builder;
     }
 
     public static ILPBaseCCMProblemBuilder argmax(Objective objective){
-        return null;
+        ILPBaseCCMProblemBuilder builder = new ILPBaseCCMProblemBuilder();
+        builder.setObjective(objective);
+        return builder;
+    }
+
+    public static <X> List<FolFormula> apply(List<X> coll,
+                                             Function<X, List<FolFormula>> f) {
+        return coll.stream().flatMap(x -> f.apply(x).stream()).collect(Collectors.toList());
     }
 
 }

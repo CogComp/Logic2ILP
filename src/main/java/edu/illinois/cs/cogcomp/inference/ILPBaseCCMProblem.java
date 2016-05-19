@@ -101,4 +101,10 @@ public class ILPBaseCCMProblem {
         }
         this.debug = true;
     }
+
+    public void printConstraints() {
+        for (FolFormula f : this.constraints){
+            System.out.println(f.toString());
+        }
+    }
 }

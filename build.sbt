@@ -40,5 +40,3 @@ libraryDependencies ++= Seq(
 // http://mvnrepository.com/artifact/org.apache.commons/commons-lang3
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.0"
 
-// http://mvnrepository.com/artifact/org.scala-lang.modules/scala-java8-compat_2.11
-libraryDependencies += "org.scala-lang.modules" %% "scala-java8-compat" % "0.7.0"

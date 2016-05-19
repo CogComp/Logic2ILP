@@ -98,6 +98,7 @@ public class SetCover {
         ILPBaseCCMProblem problem = argmin(Objective.sum(hasStation, city)).
             subjectTo(coverageConstraints.of(city)).getProblem();
 
+        problem.printConstraints();
         problem.solve();
 
         System.out.println("Solution : ");

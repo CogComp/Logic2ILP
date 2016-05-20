@@ -54,12 +54,16 @@ public class AtLeast implements FolFormula {
                 if (counter >= k){
                     return true;
                 }
-                // TODO: If remain smaller than what we need to reach k, we can just return false;
             }
             unk--;
 
         }
         return false;
+    }
+
+    @Override
+    public FolFormula toNnf() {
+        return null;
     }
 
 }

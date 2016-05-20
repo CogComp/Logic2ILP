@@ -2,13 +2,18 @@ package edu.illinois.cs.cogcomp.inference;
 
 
 import net.sf.javailp.*;
-import net.sf.tweety.logics.fol.syntax.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+
+import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Disjunction;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
 
 
 /**
@@ -43,7 +48,7 @@ public class CCMLogicSolver {
         addConstraint(problem, linear, "=", 1, constraintCounter);
     }
 
-    private static void recursiveTranslate(Problem problem, RelationalFormula formula,
+    private static void recursiveTranslate(Problem problem, FolFormula formula,
                                            String inheritedName, Counter variableCounter, Counter constraintCounter,
                                            Map<String, ? extends CCMPredicate> predicateMap, Map<String, ? extends CCMTerm> termMap) {
         if (formula instanceof Conjunction) {
@@ -108,14 +113,14 @@ public class CCMLogicSolver {
                 addConstraint(problem, l2, "<=", 0, constraintCounter);
             }
         }
-        else if (formula instanceof FOLAtom) {
-            FOLAtom folAtom = (FOLAtom) formula;
-            if (folAtom.getTerms().size() > 1) {
-                System.err.println("Not sure how to handle a predicate with more than two arguments.");
-            }
+        else if (formula instanceof IndicatorVariable) {
+            IndicatorVariable folAtom = (IndicatorVariable) formula;
+//            if (folAtom.getTerms().size() > 1) {
+//                System.err.println("Not sure how to handle a predicate with more than two arguments.");
+//            }
 
-            CCMPredicate predicate = predicateMap.get(folAtom.getPredicate().getName());
-            CCMTerm term = termMap.get(folAtom.getTerms().iterator().next().get());
+            CCMPredicate predicate = predicateMap.get(folAtom.predicateId());
+            CCMTerm term = termMap.get(folAtom.termId());
 
             addIndicatorConstraint(problem, predicate.getID() + "$" + term.getID(), constraintCounter);
             if (inheritedName != null) {
@@ -125,14 +130,14 @@ public class CCMLogicSolver {
         else if (formula instanceof Negation) {
             Negation negation = (Negation) formula;
 
-            if (negation.getFormula() instanceof FOLAtom) {
-                FOLAtom folAtom = (FOLAtom) negation.getFormula();
-                if (folAtom.getTerms().size() > 1) {
-                    System.err.println("Not sure how to handle a predicate with more than two arguments.");
-                }
+            if (negation.getFormula() instanceof IndicatorVariable) {
+                IndicatorVariable folAtom = (IndicatorVariable) negation.getFormula();
+//                if (folAtom.getTerms().size() > 1) {
+//                    System.err.println("Not sure how to handle a predicate with more than two arguments.");
+//                }
 
-                CCMPredicate predicate = predicateMap.get(folAtom.getPredicate().getName());
-                CCMTerm term = termMap.get(folAtom.getTerms().iterator().next().get());
+                CCMPredicate predicate = predicateMap.get(folAtom.predicateId());
+                CCMTerm term = termMap.get(folAtom.termId());
 
                 if (predicate == null){
                     System.out.println("Missing predicate");
@@ -148,7 +153,7 @@ public class CCMLogicSolver {
                 }
             }
             else {
-                System.err.println("Not sure how to handle any Negation other than Negation of FOLAtom.");
+                System.err.println("Not sure how to handle any Negation other than Negation of IndicatorVariable.");
                 System.exit(1);
             }
         }

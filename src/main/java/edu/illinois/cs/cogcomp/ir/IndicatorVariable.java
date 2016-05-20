@@ -52,7 +52,7 @@ public class IndicatorVariable implements FolFormula {
 
     @Override
     public String toString() {
-        return String.format("1_{%s(%s)}", predicateId,termId);
+        return String.format("%s(%s)", predicateId,termId);
     }
 
     @Override

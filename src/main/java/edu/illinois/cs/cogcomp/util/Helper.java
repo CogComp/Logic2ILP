@@ -1,9 +1,6 @@
 package edu.illinois.cs.cogcomp.util;
 
-import net.sf.tweety.logics.fol.syntax.Conjunction;
-import net.sf.tweety.logics.fol.syntax.Disjunction;
-import net.sf.tweety.logics.fol.syntax.FolFormula;
-import net.sf.tweety.logics.fol.syntax.Negation;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +15,9 @@ import edu.illinois.cs.cogcomp.inference.CCMPredicate;
 import edu.illinois.cs.cogcomp.inference.CCMTerm;
 import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblemBuilder;
 import edu.illinois.cs.cogcomp.inference.Objective;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Disjunction;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
 
 /**
  * Created by haowu on 5/14/16.

@@ -37,4 +37,9 @@ public class Forall implements FolFormula {
         }
         return true;
     }
+
+    @Override
+    public FolFormula toNnf() {
+        return null;
+    }
 }

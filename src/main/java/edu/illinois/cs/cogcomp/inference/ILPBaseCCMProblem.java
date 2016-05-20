@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.javailp.Problem;
-import net.sf.tweety.logics.fol.syntax.FolFormula;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import org.apache.commons.lang3.tuple.Pair;
 

@@ -1,6 +1,9 @@
 package edu.illinois.cs.cogcomp.ir.fol.norm;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
@@ -22,5 +25,14 @@ public class Negation implements FolFormula {
     @Override
     public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
         return !this.formula.eval(assignment);
+    }
+
+    @Override
+    public String toString() {
+        return "!"+this.formula.toString();
+    }
+    @Override
+    public FolFormula toNnf() {
+        return null;
     }
 }

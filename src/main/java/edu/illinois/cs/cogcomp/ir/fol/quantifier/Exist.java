@@ -37,4 +37,9 @@ public class Exist implements FolFormula {
         }
         return false;
     }
+
+    @Override
+    public FolFormula toNnf() {
+        return null;
+    }
 }

@@ -53,12 +53,16 @@ public class AtMost implements FolFormula {
                 if (counter > k) {
                     return false;
                 }
-                // If remain smaller than what we need to =k, we can just return true;
-                // TODO: need to check for correctness.
 
             }
             unk --;
         }
         return true;
     }
+
+    @Override
+    public FolFormula toNnf() {
+        return null;
+    }
+
 }

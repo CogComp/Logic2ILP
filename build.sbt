@@ -24,11 +24,11 @@ libraryDependencies ++= Seq(
   "org.jblas" % "jblas" % "1.2.4",
   "junit" % "junit" % "4.12",
 
-  "net.sf.tweety.logics" % "fol" % "1.6" excludeAll(
-    ExclusionRule(organization = "org.ojalgo"),
-    ExclusionRule(organization = "jspf"),
-    ExclusionRule(organization = "org.slf4j")
-    ),
+//  "net.sf.tweety.logics" % "fol" % "1.6" excludeAll(
+//    ExclusionRule(organization = "org.ojalgo"),
+//    ExclusionRule(organization = "jspf"),
+//    ExclusionRule(organization = "org.slf4j")
+//    ),
 
   //"net.sf.tweety" % "tweety-full" % "1.6",
   //"net.sf.tweety" % "plugin" % "1.6",

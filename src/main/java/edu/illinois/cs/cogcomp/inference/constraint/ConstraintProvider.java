@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.inference.constraint;
 
-import net.sf.tweety.logics.fol.syntax.FolFormula;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import java.util.Collection;
 import java.util.List;

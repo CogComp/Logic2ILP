@@ -57,4 +57,9 @@ public class ExactK implements FolFormula {
 
         return counter == k;
     }
+
+    @Override
+    public FolFormula toNnf() {
+        return null;
+    }
 }

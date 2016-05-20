@@ -1,9 +1,8 @@
 package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.javailp.Result;
-import net.sf.tweety.logics.commons.syntax.Constant;
-import net.sf.tweety.logics.commons.syntax.Predicate;
-import net.sf.tweety.logics.fol.syntax.FOLAtom;
+
+import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 
 /**
  * Created by haowu on 4/23/16.
@@ -28,15 +27,15 @@ public abstract class CCMPredicate<X> {
         return getID()+"$"+t.getID();
     }
 
-    public FOLAtom on(CCMTerm t){
-        return new FOLAtom(getPredicate(this), getConstant(t));
+    public IndicatorVariable on(CCMTerm t){
+        return new IndicatorVariable(this.getID(), t.getID());
     }
 
-    private static Constant getConstant(CCMTerm t){
-        return new Constant(t.getID());
-    }
-
-    private static Predicate getPredicate(CCMPredicate p){
-        return new Predicate(p.getID(),1);
-    }
+//    private static Constant getConstant(CCMTerm t){
+//        return new Constant(t.getID());
+//    }
+//
+//    private static Predicate getPredicate(CCMPredicate p){
+//        return new Predicate(p.getID(),1);
+//    }
 }

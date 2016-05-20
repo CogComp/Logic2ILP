@@ -1,8 +1,11 @@
 package edu.illinois.cs.cogcomp.ir.fol.norm;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
@@ -36,4 +39,16 @@ public class Disjunction implements FolFormula {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return ("(" + StringUtils
+            .join(this.formulas.stream().map(Object::toString).collect(Collectors.toList()), " | ")
+                + ")");
+    }
+    @Override
+    public FolFormula toNnf() {
+        return null;
+    }
+
 }

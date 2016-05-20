@@ -1,11 +1,8 @@
 package edu.illinois.cs.cogcomp.ir.fol.quantifier;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
@@ -13,31 +10,35 @@ import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 /**
  * Created by haowu on 5/19/16.
  */
-public class Exist implements FolFormula {
+public class NotK implements FolFormula {
 
+    private int k;
     private List<FolFormula> formulas;
 
-    public Exist(List<FolFormula> formulas) {
+    public NotK(int k, List<FolFormula> formulas) {
+        this.k = k;
         this.formulas = formulas;
     }
 
-    public Exist(FolFormula... formulas) {
+
+    public NotK(int k, FolFormula... formulas) {
         this.formulas = new ArrayList<>();
-        for (FolFormula f : formulas){
+        for (FolFormula f : formulas) {
             this.formulas.add(f);
         }
+        this.k = k;
+    }
+
+    public int getK() {
+        return k;
     }
 
     public List<FolFormula> getFormulas() {
         return formulas;
     }
+
     @Override
     public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        for (FolFormula f : formulas){
-            if (f.eval(assignment)){
-                return true;
-            }
-        }
         return false;
     }
 
@@ -49,12 +50,5 @@ public class Exist implements FolFormula {
     @Override
     public FolFormula negate() {
         return null;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("(Exist_{ %s )", "(" + StringUtils
-            .join(this.formulas.stream().map(Object::toString).collect(Collectors.toList()), " & ")
-                                              + ")");
     }
 }

@@ -51,4 +51,9 @@ public class Disjunction implements FolFormula {
         return null;
     }
 
+    @Override
+    public FolFormula negate() {
+        return new Conjunction(formulas.stream().map(f -> f.negate()).collect(Collectors.toList()));
+    }
+
 }

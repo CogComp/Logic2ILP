@@ -1,5 +1,6 @@
 package edu.illinois.cs.cogcomp.util;
 
+import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import java.util.ArrayList;
@@ -18,6 +19,10 @@ import edu.illinois.cs.cogcomp.inference.Objective;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Disjunction;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
+import edu.illinois.cs.cogcomp.ir.fol.quantifier.AtLeast;
+import edu.illinois.cs.cogcomp.ir.fol.quantifier.AtMost;
+import edu.illinois.cs.cogcomp.ir.fol.quantifier.Exist;
+import edu.illinois.cs.cogcomp.ir.fol.quantifier.Forall;
 
 /**
  * Created by haowu on 5/14/16.
@@ -51,16 +56,28 @@ public class Helper {
     }
 
     public static <X> FolFormula exist(Collection<X> colls, Function<X, FolFormula> fs){
-        return new Disjunction(colls.stream().map(fs).collect(Collectors.toList()));
+        return new Exist(colls.stream().map(fs).collect(Collectors.toList()));
     }
 
-    public static <X> FolFormula forall(Collection<?> colls, Function<X, FolFormula> fs){
-        return null;
+    public static <X> FolFormula atLeast(int k ,Collection<X> colls, Function<X, FolFormula> fs){
+        return new AtLeast(k, colls.stream().map(fs).collect(Collectors.toList()));
+    }
+
+    public static <X> FolFormula atMost(int k ,Collection<X> colls, Function<X, FolFormula> fs){
+        return new AtMost(k, colls.stream().map(fs).collect(Collectors.toList()));
+    }
+
+    public static <X> FolFormula forall(Collection<X> colls, Function<X, FolFormula> fs){
+        return new Forall(colls.stream().map(fs).collect(Collectors.toList()));
     }
 
 
     public static FolFormula not(FolFormula f) {
-        return new Negation(f);
+        if (f instanceof IndicatorVariable){
+            return new Negation((IndicatorVariable)f);
+        }else{
+            return null;
+        }
     }
 
     public static FolFormula and(FolFormula... fs) {

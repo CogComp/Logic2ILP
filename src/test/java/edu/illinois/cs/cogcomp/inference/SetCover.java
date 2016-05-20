@@ -98,6 +98,7 @@ public class SetCover {
             subjectTo(coverageConstraints.of(city)).getProblem();
 
         problem.printConstraints();
+        problem.debug();
         problem.solve();
 
         System.out.println("Solution : ");

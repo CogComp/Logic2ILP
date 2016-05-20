@@ -179,7 +179,8 @@ public class CCMLogicSolver {
         Counter variableCounter = new Counter("NV$");
         Counter constraintCounter = new Counter("C$");
         constraints.forEach(folFormula -> {
-            recursiveTranslate(problem, folFormula.toNnf(), null, variableCounter, constraintCounter, predicateMap, termMap);
+//            recursiveTranslate(problem, folFormula.toNnf(), null, variableCounter, constraintCounter, predicateMap, termMap);
+            recursiveTranslate(problem, folFormula, null, variableCounter, constraintCounter, predicateMap, termMap);
         });
 
         return problem;

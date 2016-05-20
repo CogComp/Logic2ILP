@@ -3,25 +3,26 @@ package edu.illinois.cs.cogcomp.ir;
 import java.util.Map;
 
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
 
 /**
  * Created by haowu on 5/19/16.
  */
 public class IndicatorVariable implements FolFormula {
-    private final String predicateId;
-    private final String termId;
+    private final String p;
+    private final String t;
 
     public IndicatorVariable(String predicateId, String termId) {
-        this.predicateId = predicateId;
-        this.termId = termId;
+        this.p = predicateId;
+        this.t= termId;
     }
 
     public String predicateId(){
-        return this.predicateId();
+        return this.p;
     }
 
     public String termId(){
-        return this.termId;
+        return this.t;
     }
 
     @Override
@@ -35,24 +36,24 @@ public class IndicatorVariable implements FolFormula {
 
         IndicatorVariable that = (IndicatorVariable) o;
 
-        if (predicateId != null ? !predicateId.equals(that.predicateId)
-                                : that.predicateId != null) {
+        if (p != null ? !p.equals(that.p)
+                                : that.p != null) {
             return false;
         }
-        return termId != null ? termId.equals(that.termId) : that.termId == null;
+        return t != null ? t.equals(that.t) : that.t == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = predicateId != null ? predicateId.hashCode() : 0;
-        result = 31 * result + (termId != null ? termId.hashCode() : 0);
+        int result = p != null ? p.hashCode() : 0;
+        result = 31 * result + (t != null ? t.hashCode() : 0);
         return result;
     }
 
     @Override
     public String toString() {
-        return String.format("%s(%s)", predicateId,termId);
+        return String.format("%s(%s)", p,t);
     }
 
     @Override
@@ -63,5 +64,10 @@ public class IndicatorVariable implements FolFormula {
     @Override
     public FolFormula toNnf() {
         return null;
+    }
+
+    @Override
+    public FolFormula negate() {
+        return new Negation(this);
     }
 }

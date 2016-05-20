@@ -10,4 +10,5 @@ import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 public interface FolFormula {
     boolean eval(Map<IndicatorVariable, Boolean> assignment);
     FolFormula toNnf();
+    FolFormula negate();
 }

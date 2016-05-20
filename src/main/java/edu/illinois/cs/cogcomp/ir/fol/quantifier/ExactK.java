@@ -62,4 +62,9 @@ public class ExactK implements FolFormula {
     public FolFormula toNnf() {
         return null;
     }
+
+    @Override
+    public FolFormula negate() {
+        return null;
+    }
 }

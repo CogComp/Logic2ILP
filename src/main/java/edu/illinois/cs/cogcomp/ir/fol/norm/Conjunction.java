@@ -48,6 +48,11 @@ public class Conjunction implements FolFormula {
     }
 
     @Override
+    public FolFormula negate() {
+        return new Disjunction(formulas.stream().map(f -> f.negate()).collect(Collectors.toList()));
+    }
+
+    @Override
     public String toString() {
         return ("(" + StringUtils
             .join(this.formulas.stream().map(Object::toString).collect(Collectors.toList()), " & ")

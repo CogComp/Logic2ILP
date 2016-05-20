@@ -66,4 +66,9 @@ public class AtLeast implements FolFormula {
         return null;
     }
 
+    @Override
+    public FolFormula negate() {
+        return null;
+    }
+
 }

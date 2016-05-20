@@ -1,8 +1,11 @@
 package edu.illinois.cs.cogcomp.ir.fol.quantifier;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
@@ -42,4 +45,15 @@ public class Forall implements FolFormula {
     public FolFormula toNnf() {
         return null;
     }
+
+    @Override
+    public FolFormula negate() {
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(Forall_{ %s )", "(" + StringUtils
+            .join(this.formulas.stream().map(Object::toString).collect(Collectors.toList()), " & ")
+                                              + ")");    }
 }

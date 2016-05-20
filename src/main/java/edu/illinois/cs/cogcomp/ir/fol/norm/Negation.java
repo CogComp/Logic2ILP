@@ -12,13 +12,16 @@ import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
  * Created by haowu on 5/19/16.
  */
 public class Negation implements FolFormula {
-    private FolFormula formula;
+    private IndicatorVariable formula;
 
-    public Negation(FolFormula formula) {
-        this.formula = formula;
+    public Negation(IndicatorVariable formula) {
+//        if(formula instanceof IndicatorVariable){
+            this.formula = formula;
+//        }
+
     }
 
-    public FolFormula getFormula() {
+    public IndicatorVariable getFormula() {
         return formula;
     }
 
@@ -34,5 +37,10 @@ public class Negation implements FolFormula {
     @Override
     public FolFormula toNnf() {
         return null;
+    }
+
+    @Override
+    public FolFormula negate() {
+        return formula;
     }
 }

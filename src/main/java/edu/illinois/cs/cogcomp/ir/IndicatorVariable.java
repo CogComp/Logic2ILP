@@ -59,4 +59,9 @@ public class IndicatorVariable implements FolFormula {
     public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
         return assignment.get(this);
     }
+
+    @Override
+    public FolFormula toNnf() {
+        return null;
+    }
 }

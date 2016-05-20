@@ -1,7 +1,5 @@
 package edu.illinois.cs.cogcomp.inference;
 
-import net.sf.tweety.logics.fol.syntax.FolFormula;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +8,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import static edu.illinois.cs.cogcomp.util.Helper.Register;
 import static edu.illinois.cs.cogcomp.util.Helper.T;

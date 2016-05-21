@@ -1,6 +1,7 @@
 package edu.illinois.cs.cogcomp.inference;
 
 
+import edu.illinois.cs.cogcomp.ir.fol.quantifier.*;
 import net.sf.javailp.*;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -111,6 +112,181 @@ public class CCMLogicSolver {
 
                 addConstraint(problem, l1, ">=", 0, constraintCounter);
                 addConstraint(problem, l2, "<=", 0, constraintCounter);
+            }
+        }
+        else if (formula instanceof Forall) {
+            Forall forall = (Forall) formula;
+
+            if (inheritedName == null) {
+                forall.getFormulas().forEach(c -> {
+                    recursiveTranslate(problem, c, null, variableCounter, constraintCounter, predicateMap, termMap);
+                });
+            }
+            else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(- forall.getFormulas().size(), inheritedName);
+                l2.add(-1, inheritedName);
+
+                forall.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+                    l2.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, ">=", 0, constraintCounter);
+                addConstraint(problem, l2, "<=", forall.getFormulas().size() - 1, constraintCounter);
+            }
+        }
+        else if (formula instanceof Exist) {
+            Exist exist = (Exist) formula;
+
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
+
+                exist.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, ">=", 1, constraintCounter);
+            }
+            else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(-1, inheritedName);
+                l2.add(- exist.getFormulas().size(), inheritedName);
+
+                exist.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+                    l2.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, ">=", 0, constraintCounter);
+                addConstraint(problem, l2, "<=", 0, constraintCounter);
+            }
+        }
+        else if (formula instanceof ExactK) {
+            ExactK exactK = (ExactK) formula;
+
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
+
+                exactK.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, "=", exactK.getK(), constraintCounter);
+            }
+            else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                Linear l3 = new Linear();
+                Linear l4 = new Linear();
+                l1.add(- exactK.getK(), inheritedName);
+                l2.add(- exactK.getFormulas().size(), inheritedName);
+                l3.add(exactK.getFormulas().size() - exactK.getK(), inheritedName);
+                l4.add(exactK.getFormulas().size(), inheritedName);
+
+                exactK.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+                    l2.add(1, variableCounter.toString());
+                    l3.add(1, variableCounter.toString());
+                    l4.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, ">=", 0, constraintCounter);
+                addConstraint(problem, l2, "<=", exactK.getK() - 1, constraintCounter);
+                addConstraint(problem, l3, "<=", exactK.getFormulas().size(), constraintCounter);
+                addConstraint(problem, l4, ">=", exactK.getK() + 1, constraintCounter);
+            }
+        }
+        else if (formula instanceof AtLeast) {
+            AtLeast atLeast = (AtLeast) formula;
+
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
+
+                atLeast.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, ">=", atLeast.getK(), constraintCounter);
+            }
+            else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(- atLeast.getK(), inheritedName);
+                l2.add(- atLeast.getFormulas().size(), inheritedName);
+
+                atLeast.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+                    l2.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, ">=", 0, constraintCounter);
+                addConstraint(problem, l2, "<=", atLeast.getK() - 1, constraintCounter);
+            }
+        }
+        else if (formula instanceof AtMost) {
+            AtMost atMost = (AtMost) formula;
+
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
+
+                atMost.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, "<=", atMost.getK(), constraintCounter);
+            }
+            else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(atMost.getFormulas().size() - atMost.getK(), inheritedName);
+                l2.add(atMost.getFormulas().size(), inheritedName);
+
+                atMost.getFormulas().forEach(c -> {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+                    l2.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                });
+
+                addConstraint(problem, l1, "<=", atMost.getFormulas().size(), constraintCounter);
+                addConstraint(problem, l2, ">=", atMost.getK() + 1, constraintCounter);
             }
         }
         else if (formula instanceof IndicatorVariable) {

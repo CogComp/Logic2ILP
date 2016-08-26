@@ -80,6 +80,7 @@ public class SetCover {
 
         Register(Neighborhood.class, Neighborhood::getId);
 
+        // Create a predicate
         CCMPredicate<Neighborhood> hasStation = makePredicate("hasStation", x -> 1.0);
 
         ConstraintFunction<Neighborhood>
@@ -97,16 +98,14 @@ public class SetCover {
         ILPBaseCCMProblem problem = argmin(Objective.sum(hasStation, city)).
             subjectTo(coverageConstraints.of(city)).getProblem();
 
-        problem.printConstraints();
-        problem.debug();
+//        problem.printConstraints();
+//        problem.debug();
         problem.solve();
 
         System.out.println("Solution : ");
-        for (Neighborhood n : city) {
-            if (problem.isAssigned(hasStation, T(n))) {
-                System.out.println("Should select Neighborhood " + n.getId());
-            }
-        }
+        city.stream().filter(n -> problem.isAssigned(hasStation, T(n))).forEachOrdered(n -> {
+            System.out.println("Should select Neighborhood " + n.getId());
+        });
 
     }
 

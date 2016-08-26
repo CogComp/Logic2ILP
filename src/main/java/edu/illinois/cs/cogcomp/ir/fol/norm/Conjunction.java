@@ -17,6 +17,10 @@ public class Conjunction implements FolFormula {
 
     private List<FolFormula> formulas;
 
+    /**
+     * Return the conjunction of a list of Fol formula.
+     * @param formulas list of Fol formula
+     */
     public Conjunction(List<FolFormula> formulas) {
         this.formulas = formulas;
     }

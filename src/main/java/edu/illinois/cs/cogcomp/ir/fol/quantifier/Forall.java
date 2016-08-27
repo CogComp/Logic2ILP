@@ -28,12 +28,12 @@ public class Forall implements FolFormula {
         }
     }
     public List<FolFormula> getFormulas() {
-        return formulas;
+        return this.formulas;
     }
 
     @Override
     public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        for (FolFormula f : formulas){
+        for (FolFormula f : this.formulas){
             if (!f.eval(assignment)){
                 return false;
             }
@@ -43,12 +43,17 @@ public class Forall implements FolFormula {
 
     @Override
     public FolFormula toNnf() {
-        return null;
+        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+        this.formulas.forEach(folFormula -> {
+            formulas.add(folFormula.toNnf());
+        });
+
+        return new Forall(formulas);
     }
 
     @Override
     public FolFormula negate() {
-        return null;
+        throw new RuntimeException("not implemented.");
     }
 
     @Override

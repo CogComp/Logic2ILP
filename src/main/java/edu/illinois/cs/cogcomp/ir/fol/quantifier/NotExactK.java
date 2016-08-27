@@ -1,27 +1,27 @@
 package edu.illinois.cs.cogcomp.ir.fol.quantifier;
 
+import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
-
 /**
- * Created by haowu on 5/19/16.
+ * Created by chen386 on 8/26/16.
  */
-public class ExactK implements FolFormula {
+public class NotExactK implements FolFormula {
 
     private int k;
     private List<FolFormula> formulas;
 
-    public ExactK(int k, List<FolFormula> formulas) {
+    public NotExactK(int k, List<FolFormula> formulas) {
         this.k = k;
         this.formulas = formulas;
     }
 
 
-    public ExactK(int k, FolFormula... formulas) {
+    public NotExactK(int k, FolFormula... formulas) {
         this.formulas = new ArrayList<>();
         for (FolFormula f : formulas) {
             this.formulas.add(f);
@@ -45,18 +45,17 @@ public class ExactK implements FolFormula {
         for (FolFormula f : this.formulas) {
             if (unknown + counter < k) {
                 // if all unknown eval to True, we still won't reach k, return false;
-                return false;
+                return true;
             }
-
             if (f.eval(assignment)) {
                 counter ++;
                 if (counter > k) {
-                    return false;
+                    return true;
                 }
             }
             unknown --;
         }
-        return counter == k;
+        return counter != k;
     }
 
     @Override
@@ -66,7 +65,7 @@ public class ExactK implements FolFormula {
             formulas.add(folFormula.toNnf());
         });
 
-        return new ExactK(this.k, formulas);
+        return new NotExactK(this.k, formulas);
     }
 
     @Override

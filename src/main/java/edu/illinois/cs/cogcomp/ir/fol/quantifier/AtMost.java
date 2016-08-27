@@ -29,7 +29,7 @@ public class AtMost implements FolFormula {
     }
 
     public List<FolFormula> getFormulas() {
-        return formulas;
+        return this.formulas;
     }
 
     public int getK() {
@@ -39,35 +39,38 @@ public class AtMost implements FolFormula {
     @Override
     public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
         int counter = 0;
+        int unknown = this.formulas.size();
 
-        int unk = this.formulas.size();
-
-        for (FolFormula f : formulas) {
-            if (unk + counter <= k){
-                // if all unk eval to True, we still won't reach k, return true;
+        for (FolFormula f : this.formulas) {
+            if (unknown + counter <= k){
+                // if all unknown eval to True, we still won't reach k, return true;
                 return true;
             }
 
             if (f.eval(assignment)) {
-                counter++;
+                counter ++;
                 if (counter > k) {
                     return false;
                 }
-
             }
-            unk --;
+            unknown --;
         }
         return true;
     }
 
     @Override
     public FolFormula toNnf() {
-        return null;
+        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+        this.formulas.forEach(folFormula -> {
+            formulas.add(folFormula.toNnf());
+        });
+
+        return new AtMost(this.k, formulas);
     }
 
     @Override
     public FolFormula negate() {
-        return null;
+        throw new RuntimeException("not implemented.");
     }
 
 }

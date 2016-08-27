@@ -30,7 +30,7 @@ public class AtLeast implements FolFormula {
 
 
     public List<FolFormula> getFormulas() {
-        return formulas;
+        return this.formulas;
     }
 
     public int getK() {
@@ -40,12 +40,12 @@ public class AtLeast implements FolFormula {
     @Override
     public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
         int counter = 0;
-        int unk = this.formulas.size();
+        int unknown = this.formulas.size();
 
-        for (FolFormula f : formulas){
+        for (FolFormula f : this.formulas){
             // If all unknown is ture, and we still cannot reach k,
             // return false.
-            if (unk + counter < k){
+            if (unknown + counter < k){
                 return false;
             }
 
@@ -55,20 +55,24 @@ public class AtLeast implements FolFormula {
                     return true;
                 }
             }
-            unk--;
-
+            unknown --;
         }
         return false;
     }
 
     @Override
     public FolFormula toNnf() {
-        return null;
+        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+        this.formulas.forEach(folFormula -> {
+            formulas.add(folFormula.toNnf());
+        });
+
+        return new AtLeast(this.k, formulas);
     }
 
     @Override
     public FolFormula negate() {
-        return null;
+        throw new RuntimeException("not implemented.");
     }
 
 }

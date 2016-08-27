@@ -23,8 +23,8 @@ public class JavaILPvsGurobi {
     public static void main(String[] args) throws GRBException {
         Random random = new Random(32);
 
-        int numVariables = 100;
-        int numDisjunctions = 500;
+        int numVariables = 300;
+        int numDisjunctions = 300;
 
         // JavaILP
         Problem javailp = new Problem();
@@ -49,7 +49,7 @@ public class JavaILPvsGurobi {
             List<Integer> variables = new ArrayList<>();
 
             for (int j = 0; j < numVariables; j ++) {
-                if (random.nextBoolean()) {
+                if (random.nextBoolean() || i == j) {
                     variables.add(j);
                 }
             }

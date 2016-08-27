@@ -3,10 +3,14 @@ package edu.illinois.cs.cogcomp.benchmark.task;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+
+import edu.illinois.cs.cogcomp.benchmark.TaskDescription;
+import edu.illinois.cs.cogcomp.benchmark.TaskSolution;
 
 
 /**
@@ -14,13 +18,37 @@ import java.util.stream.IntStream;
  */
 public class SetCoverTask {
 
+    public TaskDescription toDesp() {
+        return new SetCoverTaskTaskDesp(this.numberOfNeiborhood, this.numberOfEdge);
+    }
+
+    public static class SetCoverSolution implements TaskSolution{
+        public int[] assigned;
+
+        public SetCoverSolution(int[] assigned) {
+            this.assigned = assigned;
+        }
+    }
+
+    public static class SetCoverTaskTaskDesp implements TaskDescription {
+
+        public SetCoverTaskTaskDesp(int numOfNode, int numOfEdge) {
+            this.numOfNode = numOfNode;
+            this.numOfEdge = numOfEdge;
+        }
+
+        public int numOfNode;
+        public int numOfEdge;
+    }
+
     private int numberOfNeiborhood;
+    private int numberOfEdge;
     private int[][] graph;
 
-    public SetCoverTask(int numberOfNeiborhood, int[][] graph) {
-        this.numberOfNeiborhood = numberOfNeiborhood;
-        this.graph = graph;
-    }
+//    public SetCoverTask(int numberOfNeiborhood, int[][] graph) {
+//        this.numberOfNeiborhood = numberOfNeiborhood;
+//        this.graph = graph;
+//    }
 
     /**
      * Randomly init graph with number of node [min, max].
@@ -41,9 +69,9 @@ public class SetCoverTask {
         randInitGraphWithSize(numberOfNeiborhood, denseFactor);
     }
 
-    private void randInitGraphWithSize(int size, double denseFactor){
+    private void randInitGraphWithSize(int size, double denseFactor) {
         numberOfNeiborhood = size;
-
+        numberOfEdge = 0;
         Random rand = new Random();
 
         int[][] adjMat = new int[size][size];
@@ -53,6 +81,7 @@ public class SetCoverTask {
                 if (rand.nextDouble() < denseFactor) {
                     adjMat[i][j] = 1;
                     adjMat[j][i] = 1;
+                    numberOfEdge += 1;
                 }
             }
         }
@@ -69,21 +98,38 @@ public class SetCoverTask {
     public String toString() {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < numberOfNeiborhood; i++) {
-            buffer.append("" + (i+1) + " ");
-            buffer.append(StringUtils.join(Arrays.stream(graph[i]).mapToObj(x -> (x + 1) + "").collect(
-                Collectors.toList()), " "));
+            buffer.append("" + (i + 1) + " ");
+            buffer.append(
+                StringUtils.join(Arrays.stream(graph[i]).mapToObj(x -> (x + 1) + "").collect(
+                    Collectors.toList()), " "));
             buffer.append("\n");
         }
         return buffer.toString().trim();
     }
 
-    public boolean checkCondition(int[] assigned){
-        throw new RuntimeException("Not implemented");
+    public boolean checkCondition(int[] assigned) {
+        Set<Integer> covered = new HashSet<>();
+
+        for (int k : assigned) {
+            covered.add(k);
+            for (int n : graph[k - 1]) {
+                covered.add(n+1);
+            }
+        }
+
+        for (int i = 0; i < numberOfNeiborhood; i++) {
+            if (!covered.contains(i + 1)) {
+                System.err.println("[Missing: " + (i + 1) + "]");
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
     public static void main(String[] args) {
-        System.out.println(new SetCoverTask(9, 0.5).toString());;
+        System.out.println(new SetCoverTask(9, 0.5).toString());
     }
 
 

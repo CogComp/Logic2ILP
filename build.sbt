@@ -40,3 +40,6 @@ libraryDependencies ++= Seq(
 // http://mvnrepository.com/artifact/org.apache.commons/commons-lang3
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.0"
 
+libraryDependencies += "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.13" % "test"
+
+libraryDependencies += "com.google.code.gson" % "gson" % "1.7.1"

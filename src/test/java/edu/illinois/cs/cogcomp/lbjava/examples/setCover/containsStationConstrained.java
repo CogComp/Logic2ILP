@@ -1,14 +1,17 @@
 // Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // discrete{false, true} containsStationConstrained(Neighborhood n) <- SetCover(ContainsStation)
 
-package edu.illinois.cs.cogcomp.benchmark.lbjava.setCover;
+package edu.illinois.cs.cogcomp.lbjava.examples.setCover;
 
-import edu.illinois.cs.cogcomp.lbjava.classify.Classifier;
-import edu.illinois.cs.cogcomp.lbjava.classify.DiscreteFeature;
-import edu.illinois.cs.cogcomp.lbjava.classify.DiscretePrimitiveStringFeature;
-import edu.illinois.cs.cogcomp.lbjava.classify.Feature;
-import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
-import edu.illinois.cs.cogcomp.lbjava.infer.InferenceManager;
+//import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook;
+import edu.illinois.cs.cogcomp.lbjava.classify.*;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.City;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.ContainsStation;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.Neighborhood;
+import edu.illinois.cs.cogcomp.lbjava.infer.*;
+import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
+import edu.illinois.cs.cogcomp.lbjava.learn.*;
+import edu.illinois.cs.cogcomp.lbjava.parse.*;
 
 
 public class containsStationConstrained extends Classifier
@@ -50,9 +53,8 @@ public class containsStationConstrained extends Classifier
       System.exit(1);
     }
 
-    City head = SetCover.findHead((Neighborhood) __example);
-    SetCover inference = (SetCover) InferenceManager
-        .get("edu.illinois.cs.cogcomp.lbjava.examples.setCover.SetCover", head);
+    City head = SetCover.findHead((edu.illinois.cs.cogcomp.lbjava.examples.setCover.Neighborhood) __example);
+    SetCover inference = (SetCover) InferenceManager.get("edu.illinois.cs.cogcomp.lbjava.examples.setCover.SetCover", head);
 
     if (inference == null)
     {
@@ -75,7 +77,7 @@ public class containsStationConstrained extends Classifier
 
   public FeatureVector[] classify(Object[] examples)
   {
-    if (!(examples instanceof Neighborhood[]))
+    if (!(examples instanceof edu.illinois.cs.cogcomp.lbjava.examples.setCover.Neighborhood[]))
     {
       String type = examples == null ? "null" : examples.getClass().getName();
       System.err.println("Classifier 'containsStationConstrained(edu.illinois.cs.cogcomp.lbjava.examples.setCover.Neighborhood)' defined on line 23 of SetCover.lbj received '" + type + "' as input.");

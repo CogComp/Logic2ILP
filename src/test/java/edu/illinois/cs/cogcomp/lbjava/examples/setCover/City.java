@@ -5,11 +5,10 @@
  * Developed by: The Cognitive Computations Group University of Illinois at Urbana-Champaign
  * http://cogcomp.cs.illinois.edu/
  */
-package edu.illinois.cs.cogcomp.benchmark.lbjava.setCover;
+package edu.illinois.cs.cogcomp.lbjava.examples.setCover;
 
 import java.util.Collection;
 import java.util.TreeMap;
-
 import edu.illinois.cs.cogcomp.lbjava.parse.LineByLine;
 
 public class City {
@@ -17,8 +16,15 @@ public class City {
     TreeMap<Integer, Neighborhood> neighborhoods = new TreeMap<Integer, Neighborhood>();
 
     public City(String lines) {
+//        LineByLine parser = new LineByLine(file) {
+//            public Object next() {
+//                return readLine();
+//            }
+//        };
 
-        for (String line : lines.split("\n")){
+//        String line = null;
+//        while ((line = (String) parser.next()) != null) {
+        for(String line : lines.split("\n")){
             String[] definition = line.split("\\s+");
             Integer index = new Integer(definition[0]);
             Neighborhood n = getNeighborhood(index);

@@ -5,10 +5,9 @@
  * Developed by: The Cognitive Computations Group University of Illinois at Urbana-Champaign
  * http://cogcomp.cs.illinois.edu/
  */
-package edu.illinois.cs.cogcomp.benchmark.lbjava.setCover;
+package edu.illinois.cs.cogcomp.lbjava.examples.setCover;
 
 import java.io.PrintStream;
-
 import edu.illinois.cs.cogcomp.lbjava.classify.DiscretePrimitiveStringFeature;
 import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
 import edu.illinois.cs.cogcomp.lbjava.classify.ScoreSet;
@@ -37,7 +36,7 @@ public abstract class DumbLearner extends Learner {
     public FeatureVector classify(Object example) {
         String prediction = scores(example).highScoreValue();
         return new FeatureVector(new DiscretePrimitiveStringFeature(containingPackage, name, "",
-                                                                    prediction, valueIndexOf(prediction), (short) allowableValues().length));
+                prediction, valueIndexOf(prediction), (short) allowableValues().length));
     }
 
     public void write(PrintStream out) {}

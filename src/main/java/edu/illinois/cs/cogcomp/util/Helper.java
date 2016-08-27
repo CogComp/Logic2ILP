@@ -92,6 +92,10 @@ public class Helper {
         return new Disjunction(subs);
     }
 
+    public static FolFormula or(List<FolFormula> fs) {
+        return new Disjunction(fs);
+    }
+
     public static FolFormula imply(FolFormula p, FolFormula q) {
         return or(not(p), q);
     }

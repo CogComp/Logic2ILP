@@ -7,15 +7,11 @@ import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.benchmark.BenchMarkRecord;
-import edu.illinois.cs.cogcomp.benchmark.lbjava.setCover.City;
-import edu.illinois.cs.cogcomp.benchmark.lbjava.setCover.Neighborhood;
-import edu.illinois.cs.cogcomp.benchmark.lbjava.setCover.containsStationConstrained;
 import edu.illinois.cs.cogcomp.benchmark.task.SetCoverTask;
 import edu.illinois.cs.cogcomp.inference.CCMPredicate;
 import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblem;
@@ -24,6 +20,7 @@ import edu.illinois.cs.cogcomp.inference.SetCover;
 import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
+import static edu.illinois.cs.cogcomp.lbjava.examples.setCover.SetCoverSolver.solveByLBJ;
 import static edu.illinois.cs.cogcomp.util.Helper.Register;
 import static edu.illinois.cs.cogcomp.util.Helper.T;
 import static edu.illinois.cs.cogcomp.util.Helper.argmin;
@@ -62,9 +59,11 @@ public class SetCoverBenchmarkFI {
             new ConstraintFunction<>(x ->
                                      {
                                          FolFormula hasStationOnX = hasStation.on(T(x));
+                                         List<FolFormula> in_or = x.getAdjacent().stream().map(z -> hasStation.on(T(z))).collect(Collectors.toList());
                                          FolFormula
                                              hasStationOnAdjacents =
-                                             exist(x.getAdjacent(), z -> hasStation.on(T(z)));
+                                             or(in_or);
+//                                             exist();
                                          return or(hasStationOnX, hasStationOnAdjacents);
                                      }
             );
@@ -75,9 +74,9 @@ public class SetCoverBenchmarkFI {
 //        problem.printConstraints();
 //        problem.debug();
 
-        double startInferenceWalltime = System.currentTimeMillis();
-        problem.solve();
-        double endInferenceWalltime = System.currentTimeMillis();
+
+        record.inferenceTime = problem.solve();
+
 
 //        System.out.println("Solution : ");
         Set<String>
@@ -85,8 +84,8 @@ public class SetCoverBenchmarkFI {
             city.stream().filter(n -> problem.isAssigned(hasStation, T(n))).map(x -> x.getId())
                 .collect(Collectors.toSet());
 
-        double endWalltime = System.currentTimeMillis();
-        record.inferenceTime = endInferenceWalltime - startInferenceWalltime;
+        final double endWalltime = System.currentTimeMillis();
+//        record.inferenceTime = endInferenceWalltime - startInferenceWalltime;
         record.totalTime = endWalltime - startWalltime;
 
         record.solution =
@@ -94,32 +93,6 @@ public class SetCoverBenchmarkFI {
                 answer.stream().mapToInt(Integer::parseInt).toArray());
 
         return record;
-    }
-
-
-    public static BenchMarkRecord solveByLBJ(SetCoverTask task) {
-        BenchMarkRecord record = new BenchMarkRecord();
-        record.description = task.toDesp();
-
-        double startWalltime = System.currentTimeMillis();
-
-        containsStationConstrained classifier = new containsStationConstrained();
-        City c = new City(task.toString());
-
-        Set<Integer> answer = new HashSet<>();
-        for (Neighborhood n : c.getNeighborhoods()) {
-            if (classifier.discreteValue(n).equals("true")) {
-                answer.add(n.getNumber());
-            }
-        }
-        double endWalltime = System.currentTimeMillis();
-        record.totalTime = endWalltime - startWalltime;
-
-        record.solution =
-            new SetCoverTask.SetCoverSolution(
-                answer.stream().mapToInt(Integer::intValue).toArray());
-        return record;
-
     }
 
     public static void main(String[] args)
@@ -137,18 +110,21 @@ public class SetCoverBenchmarkFI {
 
                 for (int j = 0; j < 5; j++) {
                     try {
-                        BenchMarkRecord result = solve(task);
-                        writer.println(GSON.toJson(result));
+                        System.out.print("Node size : " + i + " ... running my lbj......\r");
 
                         BenchMarkRecord lbj_result = solveByLBJ(task);
                         writer_lbj.println(GSON.toJson(lbj_result));
-
-                        // Now check if retuls is the same.
-
-                        int[] mySol = ((SetCoverTask.SetCoverSolution) result.solution).assigned;
                         int[]
                             lbjSol =
                             ((SetCoverTask.SetCoverSolution) lbj_result.solution).assigned;
+
+                        System.out.print("Node size : " + i + " ... running my inference\r");
+
+                        BenchMarkRecord result = solve(task);
+                        writer.println(GSON.toJson(result));
+                        int[] mySol = ((SetCoverTask.SetCoverSolution) result.solution).assigned;
+
+
                         if (lbjSol.length != mySol.length) {
                             System.err.println(
                                 "Answer is not the same !: \n-------------------------------------- ");

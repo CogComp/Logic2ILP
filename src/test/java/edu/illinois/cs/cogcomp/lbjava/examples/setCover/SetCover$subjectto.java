@@ -1,13 +1,17 @@
 // Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000B4ECFCB2E292A4CCCCB21580E4D217ECF2B4D22592E2D4ACA4D4E2929C7D07ECC29A45846D458A65078CBC77DCD2829A4FB4DCC4FC84ACF2AC8CFCF4926D846D4B658A50008D11AADB34000000
 
-package edu.illinois.cs.cogcomp.benchmark.lbjava.setCover;
+package edu.illinois.cs.cogcomp.lbjava.examples.setCover;
 
-import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConjunction;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstraint;
-import edu.illinois.cs.cogcomp.lbjava.infer.ParameterizedConstraint;
+//import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook;
+import edu.illinois.cs.cogcomp.lbjava.classify.*;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.City;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.ContainsStation;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.Neighborhood;
+import edu.illinois.cs.cogcomp.lbjava.infer.*;
+import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
+import edu.illinois.cs.cogcomp.lbjava.learn.*;
+import edu.illinois.cs.cogcomp.lbjava.parse.*;
 
 
 public class SetCover$subjectto extends ParameterizedConstraint

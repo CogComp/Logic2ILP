@@ -1,20 +1,17 @@
 // Modifying this comment will cause the next execution of LBJava to overwrite this file.
 // F1B88000000000000000D6CC1BA02C0401541DF5975EE63A0923691C6D6C6D66D57D4602EC8CEC31214CF775C242A85F5EE9C6AECA944905BDE5EAC97754AF1E865703B3978E4833274CD176BA96C11BCC0588224E55F58FDB5C88EC49F27D7FC4413D0A11D6B06DB51C16D823983DF74B6EDC9E29BFF453F1B6387C315FDB2C7A3C000000
 
-package edu.illinois.cs.cogcomp.benchmark.lbjava.setCover;
+package edu.illinois.cs.cogcomp.lbjava.examples.setCover;
 
-import edu.illinois.cs.cogcomp.lbjava.classify.FeatureVector;
-import edu.illinois.cs.cogcomp.lbjava.infer.EqualityArgumentReplacer;
-import edu.illinois.cs.cogcomp.lbjava.infer.ExistentialQuantifier;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConjunction;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstant;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderConstraint;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderDisjunction;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderEqualityWithValue;
-import edu.illinois.cs.cogcomp.lbjava.infer.FirstOrderVariable;
-import edu.illinois.cs.cogcomp.lbjava.infer.ParameterizedConstraint;
-import edu.illinois.cs.cogcomp.lbjava.infer.QuantifierArgumentReplacer;
-import edu.illinois.cs.cogcomp.lbjava.infer.UniversalQuantifier;
+//import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook;
+import edu.illinois.cs.cogcomp.lbjava.classify.*;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.City;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.ContainsStation;
+import edu.illinois.cs.cogcomp.lbjava.examples.setCover.Neighborhood;
+import edu.illinois.cs.cogcomp.lbjava.infer.*;
+import edu.illinois.cs.cogcomp.lbjava.io.IOUtilities;
+import edu.illinois.cs.cogcomp.lbjava.learn.*;
+import edu.illinois.cs.cogcomp.lbjava.parse.*;
 
 
 public class noEmptyNeighborhoods extends ParameterizedConstraint

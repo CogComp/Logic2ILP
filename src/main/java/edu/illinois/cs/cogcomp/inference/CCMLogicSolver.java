@@ -1,14 +1,8 @@
 package edu.illinois.cs.cogcomp.inference;
 
 
-import net.sf.javailp.Constraint;
-import net.sf.javailp.Linear;
-import net.sf.javailp.OptType;
-import net.sf.javailp.Problem;
-import net.sf.javailp.Result;
-import net.sf.javailp.Solver;
-import net.sf.javailp.SolverFactory;
-import net.sf.javailp.SolverFactoryGurobi;
+import edu.illinois.cs.cogcomp.ir.fol.quantifier.*;
+import net.sf.javailp.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -22,11 +16,6 @@ import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Disjunction;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.AtLeast;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.AtMost;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.ExactK;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.Exist;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.Forall;
 
 
 /**
@@ -34,14 +23,12 @@ import edu.illinois.cs.cogcomp.ir.fol.quantifier.Forall;
  */
 public class CCMLogicSolver {
 
-    private static void addConstraint(Problem problem, Linear linear, String operator, Number rhs,
-                                      Counter constraintCounter) {
+    private static void addConstraint(Problem problem, Linear linear, String operator, Number rhs, Counter constraintCounter) {
         constraintCounter.increment();
         problem.add(new Constraint(constraintCounter.toString(), linear, operator, rhs));
     }
 
-    private static void addIndicatorConstraint(Problem problem, String variable,
-                                               Counter constraintCounter) {
+    private static void addIndicatorConstraint(Problem problem, String variable, Counter constraintCounter) {
         Linear linear = new Linear();
         linear.add(1, variable);
         addConstraint(problem, linear, ">=", 0, constraintCounter);
@@ -49,59 +36,20 @@ public class CCMLogicSolver {
         problem.setVarType(variable, Integer.class);
     }
 
-    private static void addEquivalenceConstraint(Problem problem, String variable1,
-                                                 String variable2, Counter constraintCounter) {
+    private static void addEquivalenceConstraint(Problem problem, String variable1, String variable2, Counter constraintCounter) {
         Linear linear = new Linear();
         linear.add(1, variable1);
         linear.add(-1, variable2);
         addConstraint(problem, linear, "=", 0, constraintCounter);
     }
 
-    private static void addNegationConstraint(Problem problem, String variable1, String variable2,
-                                              Counter constraintCounter) {
+    private static void addNegationConstraint(Problem problem, String variable1, String variable2, Counter constraintCounter) {
         Linear linear = new Linear();
         linear.add(1, variable1);
         linear.add(1, variable2);
         addConstraint(problem, linear, "=", 1, constraintCounter);
     }
 
-<<<<<<< HEAD
-    private static void recursiveTranslate(Problem problem, FolFormula formula,
-                                           String inheritedName, Counter variableCounter,
-                                           Counter constraintCounter,
-                                           Map<String, ? extends CCMPredicate> predicateMap,
-                                           Map<String, ? extends CCMTerm> termMap) {
-        if (formula instanceof Conjunction) {
-            Conjunction conjunction = (Conjunction) formula;
-
-            if (inheritedName == null) {
-                conjunction.getFormulas().forEach(c -> {
-                    recursiveTranslate(problem, c, null, variableCounter, constraintCounter,
-                                       predicateMap, termMap);
-                });
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                l1.add(-conjunction.getFormulas().size(), inheritedName);
-                l2.add(-1, inheritedName);
-
-                conjunction.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 0, constraintCounter);
-                addConstraint(problem, l2, "<=", conjunction.getFormulas().size() - 1,
-                              constraintCounter);
-            }
-        } else if (formula instanceof Disjunction) {
-            Disjunction disjunction = (Disjunction) formula;
-=======
     private static void recursiveTranslateConjunction(Problem problem, Conjunction conjunction,
                                                       String inheritedName, Counter variableCounter, Counter constraintCounter,
                                                       Map<String, ? extends CCMPredicate> predicateMap, Map<String, ? extends CCMTerm> termMap) {
@@ -129,7 +77,6 @@ public class CCMLogicSolver {
             addConstraint(problem, l2, "<=", conjunction.getFormulas().size() - 1, constraintCounter);
         }
     }
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
 
     private static void recursiveTranslateDisjunction(Problem problem, Disjunction disjunction,
                                                       String inheritedName, Counter variableCounter, Counter constraintCounter,
@@ -142,62 +89,6 @@ public class CCMLogicSolver {
                 addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
                 l1.add(1, variableCounter.toString());
 
-<<<<<<< HEAD
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 1, constraintCounter);
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                l1.add(-1, inheritedName);
-                l2.add(-disjunction.getFormulas().size(), inheritedName);
-
-                disjunction.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 0, constraintCounter);
-                addConstraint(problem, l2, "<=", 0, constraintCounter);
-            }
-        } else if (formula instanceof Forall) {
-            Forall forall = (Forall) formula;
-
-            if (inheritedName == null) {
-                forall.getFormulas().forEach(c -> {
-                    recursiveTranslate(problem, c, null, variableCounter, constraintCounter,
-                                       predicateMap, termMap);
-                });
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                l1.add(-forall.getFormulas().size(), inheritedName);
-                l2.add(-1, inheritedName);
-
-                forall.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 0, constraintCounter);
-                addConstraint(problem, l2, "<=", forall.getFormulas().size() - 1,
-                              constraintCounter);
-            }
-        } else if (formula instanceof Exist) {
-            Exist exist = (Exist) formula;
-=======
                 recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
             });
 
@@ -222,7 +113,6 @@ public class CCMLogicSolver {
             addConstraint(problem, l2, "<=", 0, constraintCounter);
         }
     }
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
 
     private static void recursiveTranslateForall(Problem problem, Forall forall,
                                                  String inheritedName, Counter variableCounter, Counter constraintCounter,
@@ -252,34 +142,6 @@ public class CCMLogicSolver {
         }
     }
 
-<<<<<<< HEAD
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 1, constraintCounter);
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                l1.add(-1, inheritedName);
-                l2.add(-exist.getFormulas().size(), inheritedName);
-
-                exist.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 0, constraintCounter);
-                addConstraint(problem, l2, "<=", 0, constraintCounter);
-            }
-        } else if (formula instanceof ExactK) {
-            ExactK exactK = (ExactK) formula;
-=======
     private static void recursiveTranslateExist(Problem problem, Exist exist,
                                                 String inheritedName, Counter variableCounter, Counter constraintCounter,
                                                 Map<String, ? extends CCMPredicate> predicateMap, Map<String, ? extends CCMTerm> termMap) {
@@ -310,7 +172,6 @@ public class CCMLogicSolver {
 
                 recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
             });
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
 
             addConstraint(problem, l1, ">=", 0, constraintCounter);
             addConstraint(problem, l2, "<=", 0, constraintCounter);
@@ -323,42 +184,6 @@ public class CCMLogicSolver {
         if (inheritedName == null) {
             Linear l1 = new Linear();
 
-<<<<<<< HEAD
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, "=", exactK.getK(), constraintCounter);
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                Linear l3 = new Linear();
-                Linear l4 = new Linear();
-                l1.add(-exactK.getK(), inheritedName);
-                l2.add(-exactK.getFormulas().size(), inheritedName);
-                l3.add(exactK.getFormulas().size() - exactK.getK(), inheritedName);
-                l4.add(exactK.getFormulas().size(), inheritedName);
-
-                exactK.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-                    l3.add(1, variableCounter.toString());
-                    l4.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 0, constraintCounter);
-                addConstraint(problem, l2, "<=", exactK.getK() - 1, constraintCounter);
-                addConstraint(problem, l3, "<=", exactK.getFormulas().size(), constraintCounter);
-                addConstraint(problem, l4, ">=", exactK.getK() + 1, constraintCounter);
-            }
-        } else if (formula instanceof AtLeast) {
-            AtLeast atLeast = (AtLeast) formula;
-=======
             exactK.getFormulas().forEach(c -> {
                 variableCounter.increment();
                 addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
@@ -389,7 +214,6 @@ public class CCMLogicSolver {
 
                 recursiveTranslate(problem, c, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
             });
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
 
             addConstraint(problem, l1, ">=", 0, constraintCounter);
             addConstraint(problem, l2, "<=", exactK.getK() - 1, constraintCounter);
@@ -404,33 +228,6 @@ public class CCMLogicSolver {
         if (inheritedName == null) {
             Linear l1 = new Linear();
 
-<<<<<<< HEAD
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", atLeast.getK(), constraintCounter);
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                l1.add(-atLeast.getK(), inheritedName);
-                l2.add(-atLeast.getFormulas().size(), inheritedName);
-
-                atLeast.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, ">=", 0, constraintCounter);
-                addConstraint(problem, l2, "<=", atLeast.getK() - 1, constraintCounter);
-            }
-        } else if (formula instanceof AtMost) {
-=======
             atLeast.getFormulas().forEach(c -> {
                 variableCounter.increment();
                 addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
@@ -516,7 +313,6 @@ public class CCMLogicSolver {
             recursiveTranslateAtLeast(problem, atLeast, inheritedName, variableCounter, constraintCounter, predicateMap, termMap);
         }
         else if (formula instanceof AtMost) {
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
             AtMost atMost = (AtMost) formula;
 
             recursiveTranslateAtMost(problem, atMost, inheritedName, variableCounter, constraintCounter, predicateMap, termMap);
@@ -529,37 +325,6 @@ public class CCMLogicSolver {
         else if (formula instanceof Forall) {
             Forall forall = (Forall) formula;
 
-<<<<<<< HEAD
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, "<=", atMost.getK(), constraintCounter);
-            } else {
-                Linear l1 = new Linear();
-                Linear l2 = new Linear();
-                l1.add(atMost.getFormulas().size() - atMost.getK(), inheritedName);
-                l2.add(atMost.getFormulas().size(), inheritedName);
-
-                atMost.getFormulas().forEach(c -> {
-                    variableCounter.increment();
-                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    recursiveTranslate(problem, c, variableCounter.toString(), variableCounter,
-                                       constraintCounter, predicateMap, termMap);
-                });
-
-                addConstraint(problem, l1, "<=", atMost.getFormulas().size(), constraintCounter);
-                addConstraint(problem, l2, ">=", atMost.getK() + 1, constraintCounter);
-            }
-        } else if (formula instanceof IndicatorVariable) {
-            IndicatorVariable folAtom = (IndicatorVariable) formula;
-//            if (folAtom.getTerms().size() > 1) {
-//                System.err.println("Not sure how to handle a predicate with more than two arguments.");
-//            }
-=======
             recursiveTranslateForall(problem, forall, inheritedName, variableCounter, constraintCounter, predicateMap, termMap);
         }
         else if (formula instanceof ExactK) {
@@ -578,61 +343,31 @@ public class CCMLogicSolver {
         }
         else if (formula instanceof IndicatorVariable) {
             IndicatorVariable indicatorVariable = (IndicatorVariable) formula;
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
 
             CCMPredicate predicate = predicateMap.get(indicatorVariable.predicateId());
             CCMTerm term = termMap.get(indicatorVariable.termId());
 
-            addIndicatorConstraint(problem, predicate.getID() + "$" + term.getID(),
-                                   constraintCounter);
+            addIndicatorConstraint(problem, predicate.getID() + "$" + term.getID(), constraintCounter);
             if (inheritedName != null) {
-                addEquivalenceConstraint(problem, inheritedName,
-                                         predicate.getID() + "$" + term.getID(), constraintCounter);
+                addEquivalenceConstraint(problem, inheritedName, predicate.getID() + "$" + term.getID(), constraintCounter);
             }
-        } else if (formula instanceof Negation) {
+        }
+        else if (formula instanceof Negation) {
             Negation negation = (Negation) formula;
 
             if (negation.getFormula() instanceof IndicatorVariable) {
-<<<<<<< HEAD
-                IndicatorVariable folAtom = (IndicatorVariable) negation.getFormula();
-//                if (folAtom.getTerms().size() > 1) {
-//                    System.err.println("Not sure how to handle a predicate with more than two arguments.");
-//                }
-
-                CCMPredicate predicate = predicateMap.get(folAtom.predicateId());
-                CCMTerm term = termMap.get(folAtom.termId());
-
-                if (predicate == null) {
-                    System.out.println("Missing predicate");
-                }
-
-                if (term == null) {
-                    System.out.println("Missing term");
-                }
-=======
                 IndicatorVariable indicatorVariable = (IndicatorVariable) negation.getFormula();
 
                 CCMPredicate predicate = predicateMap.get(indicatorVariable.predicateId());
                 CCMTerm term = termMap.get(indicatorVariable.termId());
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
 
-                addIndicatorConstraint(problem, predicate.getID() + "$" + term.getID(),
-                                       constraintCounter);
+                addIndicatorConstraint(problem, predicate.getID() + "$" + term.getID(), constraintCounter);
                 if (inheritedName != null) {
-                    addNegationConstraint(problem, inheritedName,
-                                          predicate.getID() + "$" + term.getID(),
-                                          constraintCounter);
+                    addNegationConstraint(problem, inheritedName, predicate.getID() + "$" + term.getID(), constraintCounter);
                 }
-<<<<<<< HEAD
-            } else {
-                System.err.println(
-                    "Not sure how to handle any Negation other than Negation of IndicatorVariable.");
-                System.exit(1);
-=======
             }
             else {
                 throw new RuntimeException("NNF failed or is not called before translation.");
->>>>>>> a926aa7fa7006fe4c272786291126067abbc37d1
             }
         }
         else {
@@ -640,10 +375,8 @@ public class CCMLogicSolver {
         }
     }
 
-    public static Problem translateLogicToILP(
-        List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
-        List<FolFormula> constraints,
-        Map<String, ? extends CCMPredicate> predicateMap, Map<String, ? extends CCMTerm> termMap) {
+    public static Problem translateLogicToILP(List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective, List<FolFormula> constraints,
+                                               Map<String, ? extends CCMPredicate> predicateMap, Map<String, ? extends CCMTerm> termMap) {
         Problem problem = new Problem();
 
         // Set objective function
@@ -663,17 +396,14 @@ public class CCMLogicSolver {
         Counter constraintCounter = new Counter("C$");
         constraints.forEach(folFormula -> {
 //            recursiveTranslate(problem, folFormula.toNnf(), null, variableCounter, constraintCounter, predicateMap, termMap);
-            recursiveTranslate(problem, folFormula, null, variableCounter, constraintCounter,
-                               predicateMap, termMap);
+            recursiveTranslate(problem, folFormula, null, variableCounter, constraintCounter, predicateMap, termMap);
         });
 
         return problem;
     }
 
-    public static double solve(List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
-                               List<FolFormula> constraints,
-                               Map<String, ? extends CCMPredicate> predicateMap,
-                               Map<String, ? extends CCMTerm> termMap, int timeout) {
+    public static void solve(List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective, List<FolFormula> constraints,
+                             Map<String,? extends CCMPredicate> predicateMap, Map<String,? extends CCMTerm> termMap, int timeout) {
         Problem problem = translateLogicToILP(objective, constraints, predicateMap, termMap);
 
         SolverFactory factory = new SolverFactoryGurobi();
@@ -681,13 +411,10 @@ public class CCMLogicSolver {
         factory.setParameter(Solver.TIMEOUT, timeout);
 
         Solver solver = factory.get();
-        final double startInferenceWalltime = System.currentTimeMillis();
         Result result = solver.solve(problem);
-        final double endInferenceWalltime = System.currentTimeMillis();
 
         predicateMap.forEach((s, ccmPredicate) -> {
             ccmPredicate.setResult(result);
         });
-        return endInferenceWalltime - startInferenceWalltime;
     }
 }

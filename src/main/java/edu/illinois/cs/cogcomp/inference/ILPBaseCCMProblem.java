@@ -64,17 +64,17 @@ public class ILPBaseCCMProblem {
 
 
     public double solve(){
+        this.problem = CCMLogicSolver.translateLogicToILP(objective, constraints, predicateMap,
+                                                          termMap);
         if (this.debug){
-            this.problem = CCMLogicSolver.translateLogicToILP(objective, constraints, predicateMap,
-                                                              termMap);
             System.out.println(problem);
         }
 //        Solver solver = factory.get(); // you should use this solver only once for one problem
 //        Result result = solver.solve(problem);
-//        final double startInferenceWalltime = System.currentTimeMillis();
-        return CCMLogicSolver.solve(objective, constraints, predicateMap, termMap, 3000);
-//        final double endInferenceWalltime = System.currentTimeMillis();
-//        return endInferenceWalltime-startInferenceWalltime;
+        final double startInferenceWalltime = System.currentTimeMillis();
+        CCMLogicSolver.solve(this.problem, predicateMap, 3000);
+        final double endInferenceWalltime = System.currentTimeMillis();
+        return endInferenceWalltime-startInferenceWalltime;
     }
 
     public String getAssignment(String[] labels, CCMTerm term){

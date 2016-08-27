@@ -29,7 +29,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        SetCoverTask task = new SetCoverTask(300, 0.5);
+        SetCoverTask task = new SetCoverTask(100, 0.2);
 
         System.out.println(task.toString());
         BenchMarkRecord lbj_result = solveByLBJ(task);

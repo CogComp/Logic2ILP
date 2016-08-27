@@ -21,7 +21,7 @@ public class JavaILPvsGurobi {
     }
 
     public static void main(String[] args) throws GRBException {
-        Random random = new Random(32);
+        Random random = new Random(32);git
 
         int numVariables = 100;
         int numDisjunctions = 500;

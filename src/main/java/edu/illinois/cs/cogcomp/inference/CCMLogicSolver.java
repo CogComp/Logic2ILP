@@ -402,10 +402,13 @@ public class CCMLogicSolver {
         return problem;
     }
 
-    public static void solve(List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective, List<FolFormula> constraints,
+    public static void translateAndSolve(List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective, List<FolFormula> constraints,
                              Map<String,? extends CCMPredicate> predicateMap, Map<String,? extends CCMTerm> termMap, int timeout) {
         Problem problem = translateLogicToILP(objective, constraints, predicateMap, termMap);
+        solve(problem,predicateMap,timeout);
+    }
 
+    public static void solve(Problem problem, Map<String,? extends CCMPredicate> predicateMap,int timeout) {
         SolverFactory factory = new SolverFactoryGurobi();
         factory.setParameter(Solver.VERBOSE, 0);
         factory.setParameter(Solver.TIMEOUT, timeout);

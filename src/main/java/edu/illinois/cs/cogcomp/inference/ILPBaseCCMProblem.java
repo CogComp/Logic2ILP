@@ -1,6 +1,10 @@
 package edu.illinois.cs.cogcomp.inference;
 
 import net.sf.javailp.Problem;
+import net.sf.javailp.Solver;
+import net.sf.javailp.SolverFactory;
+import net.sf.javailp.SolverFactoryGurobi;
+
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -64,15 +68,24 @@ public class ILPBaseCCMProblem {
 
 
     public double solve(){
-        this.problem = CCMLogicSolver.translateLogicToILP(objective, constraints, predicateMap,
-                                                          termMap);
+        CCMLogicSolver ccmSolver = new CCMLogicSolver(objective, constraints, predicateMap,
+                                                      termMap);
+
+
         if (this.debug){
-            System.out.println(problem);
+            ccmSolver.prepare();
+            System.out.println(ccmSolver.getProblem());
         }
-//        Solver solver = factory.get(); // you should use this solver only once for one problem
-//        Result result = solver.solve(problem);
+
+        SolverFactory factory = new SolverFactoryGurobi();
+        factory.setParameter(Solver.VERBOSE, 0);
+        factory.setParameter(Solver.TIMEOUT, 3000);
+
+        Solver solver = factory.get();
         final double startInferenceWalltime = System.currentTimeMillis();
-        CCMLogicSolver.solve(this.problem, predicateMap, 3000);
+
+        ccmSolver.solve(solver);
+
         final double endInferenceWalltime = System.currentTimeMillis();
         return endInferenceWalltime-startInferenceWalltime;
     }

@@ -75,13 +75,13 @@ public class CCMLogicSolver {
 
         // Set constraints
         constraints.forEach(folFormula -> {
-//            translate(problem, folFormula.toNnf(), null, variableCounter , predicateMap, termMap);
+//            translate(folFormula.toNnf(), null);
             translate(folFormula, null);
         });
 
 
     }
-    
+
     public void solve(Solver ilpSolver) {
         if (problem == null) {
             prepare();
@@ -117,6 +117,31 @@ public class CCMLogicSolver {
         addConstraint(linear, "=", 1);
     }
 
+    private void handleNonIndiactorChildren(FolFormula folFormula, Linear... linears) {
+        variableCounter.increment();
+        addIndicatorConstraint(variableCounter.toString());
+        for (Linear l : linears) {
+            l.add(1, variableCounter.toString());
+        }
+
+        translate(folFormula, variableCounter.toString());
+    }
+
+    private void handleFormulaChildren(Linear l1, Linear l2, FolFormula folFormula) {
+        if (folFormula instanceof IndicatorVariable) {
+            CCMPredicate
+                predicate =
+                predicateMap.get(((IndicatorVariable) folFormula).predicateId());
+            CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
+
+            addIndicatorConstraint(predicate.getID() + "$" + term.getID());
+            l1.add(1, predicate.getID() + "$" + term.getID());
+            l2.add(1, predicate.getID() + "$" + term.getID());
+        } else {
+            handleNonIndiactorChildren(folFormula, l1, l2);
+        }
+    }
+
     private void translateConjunction(Conjunction conjunction, String inheritedName) {
         List<FolFormula> oldFormulas = new ArrayList<>();
         List<FolFormula> newFormulas = conjunction.getFormulas();
@@ -146,25 +171,9 @@ public class CCMLogicSolver {
             l1.add(-conjunction.getFormulas().size(), inheritedName);
             l2.add(-1, inheritedName);
 
-            conjunction.getFormulas().forEach(folFormula -> {
-                if (folFormula instanceof IndicatorVariable) {
-                    CCMPredicate
-                        predicate =
-                        predicateMap.get(((IndicatorVariable) folFormula).predicateId());
-                    CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
-
-                    addIndicatorConstraint(predicate.getID() + "$" + term.getID());
-                    l1.add(1, predicate.getID() + "$" + term.getID());
-                    l2.add(1, predicate.getID() + "$" + term.getID());
-                } else {
-                    variableCounter.increment();
-                    addIndicatorConstraint(variableCounter.toString());
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    translate(folFormula, variableCounter.toString());
-                }
-            });
+            for (FolFormula folFormula : conjunction.getFormulas()) {
+                handleFormulaChildren(l1, l2, folFormula);
+            }
 
             addConstraint(l1, ">=", 0);
             addConstraint(l2, "<=", conjunction.getFormulas().size() - 1);
@@ -217,26 +226,9 @@ public class CCMLogicSolver {
             Linear l2 = new Linear();
             l1.add(-1, inheritedName);
             l2.add(-disjunction.getFormulas().size(), inheritedName);
-
-            disjunction.getFormulas().forEach(folFormula -> {
-                if (folFormula instanceof IndicatorVariable) {
-                    CCMPredicate
-                        predicate =
-                        predicateMap.get(((IndicatorVariable) folFormula).predicateId());
-                    CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
-
-                    addIndicatorConstraint(predicate.getID() + "$" + term.getID());
-                    l1.add(1, predicate.getID() + "$" + term.getID());
-                    l2.add(1, predicate.getID() + "$" + term.getID());
-                } else {
-                    variableCounter.increment();
-                    addIndicatorConstraint(variableCounter.toString());
-                    l1.add(1, variableCounter.toString());
-                    l2.add(1, variableCounter.toString());
-
-                    translate(folFormula, variableCounter.toString());
-                }
-            });
+            for (FolFormula folFormula : disjunction.getFormulas()) {
+                handleFormulaChildren(l1, l2, folFormula);
+            }
 
             addConstraint(l1, ">=", 0);
             addConstraint(l2, "<=", 0);
@@ -247,13 +239,9 @@ public class CCMLogicSolver {
         if (inheritedName == null) {
             Linear l1 = new Linear();
 
-            exactK.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(variableCounter.toString());
-                l1.add(1, variableCounter.toString());
-
-                translate(folFormula, variableCounter.toString());
-            });
+            for (FolFormula folFormula : exactK.getFormulas()) {
+                handleNonIndiactorChildren(folFormula, l1);
+            }
 
             addConstraint(l1, "=", exactK.getK());
         } else {
@@ -266,16 +254,9 @@ public class CCMLogicSolver {
             l3.add(exactK.getFormulas().size() - exactK.getK(), inheritedName);
             l4.add(exactK.getFormulas().size(), inheritedName);
 
-            exactK.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(variableCounter.toString());
-                l1.add(1, variableCounter.toString());
-                l2.add(1, variableCounter.toString());
-                l3.add(1, variableCounter.toString());
-                l4.add(1, variableCounter.toString());
-
-                translate(folFormula, variableCounter.toString());
-            });
+            for (FolFormula folFormula : exactK.getFormulas()) {
+                handleNonIndiactorChildren(folFormula, l1, l2, l3, l4);
+            }
 
             addConstraint(l1, ">=", 0);
             addConstraint(l2, "<=", exactK.getK() - 1);
@@ -288,13 +269,9 @@ public class CCMLogicSolver {
         if (inheritedName == null) {
             Linear l1 = new Linear();
 
-            atLeast.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(variableCounter.toString());
-                l1.add(1, variableCounter.toString());
-
-                translate(folFormula, variableCounter.toString());
-            });
+            for (FolFormula folFormula : atLeast.getFormulas()) {
+                handleNonIndiactorChildren(folFormula, l1);
+            }
 
             addConstraint(l1, ">=", atLeast.getK());
         } else {
@@ -303,14 +280,9 @@ public class CCMLogicSolver {
             l1.add(-atLeast.getK(), inheritedName);
             l2.add(-atLeast.getFormulas().size(), inheritedName);
 
-            atLeast.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(variableCounter.toString());
-                l1.add(1, variableCounter.toString());
-                l2.add(1, variableCounter.toString());
-
-                translate(folFormula, variableCounter.toString());
-            });
+            for (FolFormula folFormula : atLeast.getFormulas()) {
+                handleNonIndiactorChildren(folFormula, l1, l2);
+            }
 
             addConstraint(l1, ">=", 0);
             addConstraint(l2, "<=", atLeast.getK() - 1);
@@ -321,13 +293,9 @@ public class CCMLogicSolver {
         if (inheritedName == null) {
             Linear l1 = new Linear();
 
-            atMost.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(variableCounter.toString());
-                l1.add(1, variableCounter.toString());
-
-                translate(folFormula, variableCounter.toString());
-            });
+            for (FolFormula folFormula : atMost.getFormulas()) {
+                handleNonIndiactorChildren(folFormula, l1);
+            }
 
             addConstraint(l1, "<=", atMost.getK());
         } else {
@@ -336,14 +304,9 @@ public class CCMLogicSolver {
             l1.add(atMost.getFormulas().size() - atMost.getK(), inheritedName);
             l2.add(atMost.getFormulas().size(), inheritedName);
 
-            atMost.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(variableCounter.toString());
-                l1.add(1, variableCounter.toString());
-                l2.add(1, variableCounter.toString());
-
-                translate(folFormula, variableCounter.toString());
-            });
+            for (FolFormula folFormula : atMost.getFormulas()) {
+                handleNonIndiactorChildren(folFormula, l1, l2);
+            }
 
             addConstraint(l1, "<=", atMost.getFormulas().size());
             addConstraint(l2, ">=", atMost.getK() + 1);

@@ -13,23 +13,23 @@ import java.util.Random;
 public class JavaILPvsGurobi {
 
     private static void addIndicatorConstraintJavaILP(Problem problem, String variable) {
-        Linear linear = new Linear();
-        linear.add(1, variable);
-        problem.add(linear, ">=", 0);
-        problem.add(linear, "<=", 1);
-        problem.setVarType(variable, Integer.class);
+//        Linear linear = new Linear();
+//        linear.add(1, variable);
+//        problem.add(linear, ">=", 0);
+//        problem.add(linear, "<=", 1);
+        problem.setVarType(variable, Boolean.class);
     }
 
     public static void main(String[] args) throws GRBException {
-        Random random = new Random(32);git
+        Random random = new Random(32);
 
-        int numVariables = 300;
-        int numDisjunctions = 300;
+        int numNodes = 50;
+        double density = 0.5;
 
         // JavaILP
         Problem javailp = new Problem();
         Linear javailpObjective = new Linear();
-        for (int j = 0; j < numVariables; j ++) {
+        for (int j = 0; j < numNodes; j ++) {
             addIndicatorConstraintJavaILP(javailp, String.valueOf(j));
             javailpObjective.add(1, String.valueOf(j));
         }
@@ -39,17 +39,29 @@ public class JavaILPvsGurobi {
         GRBEnv gurobiEnv = new GRBEnv();
         gurobiEnv.set(GRB.IntParam.OutputFlag, 0);
         GRBModel gurobi = new GRBModel(gurobiEnv);
-        GRBVar[] gurobiVariables = new GRBVar[numVariables];
-        for (int j = 0; j < numVariables; j ++) {
+        GRBVar[] gurobiVariables = new GRBVar[numNodes];
+        for (int j = 0; j < numNodes; j ++) {
             gurobiVariables[j] = gurobi.addVar(0, 1, 1, GRB.BINARY, String.valueOf(j));
         }
         gurobi.update();
 
-        for (int i = 0; i < numDisjunctions; i ++) {
+        boolean[][] edges = new boolean[numNodes][numNodes];
+        for (int i = 0; i < numNodes; i ++) {
+            for (int j = i + 1; j < numNodes; j ++) {
+                if (random.nextDouble() < density) {
+                    edges[i][j] = true;
+                }
+                else {
+                    edges[i][j] = false;
+                }
+            }
+        }
+
+        for (int i = 0; i < numNodes; i ++) {
             List<Integer> variables = new ArrayList<>();
 
-            for (int j = 0; j < numVariables; j ++) {
-                if (random.nextBoolean() || i == j) {
+            for (int j = 0; j < numNodes; j ++) {
+                if (edges[i][j] || edges[j][i] || i == j) {
                     variables.add(j);
                 }
             }

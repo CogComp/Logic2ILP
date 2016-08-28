@@ -29,11 +29,7 @@ public class CCMLogicSolver {
     }
 
     private static void addIndicatorConstraint(Problem problem, String variable, Counter constraintCounter) {
-        Linear linear = new Linear();
-        linear.add(1, variable);
-        addConstraint(problem, linear, ">=", 0, constraintCounter);
-        addConstraint(problem, linear, "<=", 1, constraintCounter);
-        problem.setVarType(variable, Integer.class);
+        problem.setVarType(variable, Boolean.class);
     }
 
     private static void addEquivalenceConstraint(Problem problem, String variable1, String variable2, Counter constraintCounter) {

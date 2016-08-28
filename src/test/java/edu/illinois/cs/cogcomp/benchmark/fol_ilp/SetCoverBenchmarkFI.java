@@ -24,7 +24,6 @@ import static edu.illinois.cs.cogcomp.lbjava.examples.setCover.SetCoverSolver.so
 import static edu.illinois.cs.cogcomp.util.Helper.Register;
 import static edu.illinois.cs.cogcomp.util.Helper.T;
 import static edu.illinois.cs.cogcomp.util.Helper.argmin;
-import static edu.illinois.cs.cogcomp.util.Helper.exist;
 import static edu.illinois.cs.cogcomp.util.Helper.makePredicate;
 import static edu.illinois.cs.cogcomp.util.Helper.or;
 
@@ -59,7 +58,10 @@ public class SetCoverBenchmarkFI {
             new ConstraintFunction<>(x ->
                                      {
                                          FolFormula hasStationOnX = hasStation.on(T(x));
-                                         List<FolFormula> in_or = x.getAdjacent().stream().map(z -> hasStation.on(T(z))).collect(Collectors.toList());
+                                         List<FolFormula>
+                                             in_or =
+                                             x.getAdjacent().stream().map(z -> hasStation.on(T(z)))
+                                                 .collect(Collectors.toList());
                                          FolFormula
                                              hasStationOnAdjacents =
                                              or(in_or);
@@ -74,9 +76,7 @@ public class SetCoverBenchmarkFI {
 //        problem.printConstraints();
 //        problem.debug();
 
-
         record.inferenceTime = problem.solve();
-
 
 //        System.out.println("Solution : ");
         Set<String>
@@ -95,86 +95,106 @@ public class SetCoverBenchmarkFI {
         return record;
     }
 
-    public static void main(String[] args)
-        throws FileNotFoundException, UnsupportedEncodingException, InterruptedException {
-        PrintWriter writer = new PrintWriter("bench_fol.txt", "UTF-8");
-        PrintWriter writer_lbj = new PrintWriter("bench_lbj.txt", "UTF-8");
+    public static final int NUM_OF_TRAIL = 10;
 
-        for (int i = 10; i < 100; i++) {
+    public static boolean conductExperiment(int i, SetCoverTask task, PrintWriter writer,
+                                            PrintWriter writer_lbj) {
+        try {
+            System.out.print("Node size : " + i + " ... running my lbj......\r");
 
-            System.out.print("Node size : " + i + "\r");
+            BenchMarkRecord lbj_result = solveByLBJ(task);
+            writer_lbj.println(GSON.toJson(lbj_result));
+            int[]
+                lbjSol =
+                ((SetCoverTask.SetCoverSolution) lbj_result.solution).assigned;
 
-            for (double density = 0.2; density <= 0.8; density += 0.1) {
+            System.out.print("Node size : " + i + " ... running my inference\r");
 
-                SetCoverTask task = new SetCoverTask(i, density);
+            BenchMarkRecord result = solve(task);
+            writer.println(GSON.toJson(result));
+            int[] mySol = ((SetCoverTask.SetCoverSolution) result.solution).assigned;
 
-                for (int j = 0; j < 5; j++) {
-                    try {
-                        System.out.print("Node size : " + i + " ... running my lbj......\r");
+            if (lbjSol.length != mySol.length) {
+                System.err.println(
+                    "Answer is not the same !: \n-------------------------------------- ");
+                System.err.println("My length :" + mySol.length);
+                System.err.println(GSON.toJson(mySol));
+                System.err.println("LBJ length : " + lbjSol.length);
+                System.err.println(GSON.toJson(lbjSol));
+                System.err.println(task.toString());
+                System.err.println("------------------------------------------");
+                return false;
 
-                        BenchMarkRecord lbj_result = solveByLBJ(task);
-                        writer_lbj.println(GSON.toJson(lbj_result));
-                        int[]
-                            lbjSol =
-                            ((SetCoverTask.SetCoverSolution) lbj_result.solution).assigned;
+            } else {
+                if (!task.checkCondition(mySol)) {
+                    System.err.println(
+                        "My Solution is bad: \n-------------------------------------- ");
+                    System.err.println(GSON.toJson(mySol));
+                    System.err
+                        .println("================================================");
+                    System.err.println(task.toString());
+                    System.err.println("------------------------------------------");
+                    return false;
+                }
 
-                        System.out.print("Node size : " + i + " ... running my inference\r");
-
-                        BenchMarkRecord result = solve(task);
-                        writer.println(GSON.toJson(result));
-                        int[] mySol = ((SetCoverTask.SetCoverSolution) result.solution).assigned;
-
-
-                        if (lbjSol.length != mySol.length) {
-                            System.err.println(
-                                "Answer is not the same !: \n-------------------------------------- ");
-                            System.err.println("My length :" + mySol.length);
-                            System.err.println(GSON.toJson(mySol));
-                            System.err.println("LBJ length : " + lbjSol.length);
-                            System.err.println(GSON.toJson(lbjSol));
-                            System.err.println(task.toString());
-                            System.err.println("------------------------------------------");
-                            j = 123123123;
-                            i = 123123123;
-                            density = 100;
-                        } else {
-                            if (!task.checkCondition(mySol)) {
-                                System.err.println(
-                                    "My Solution is bad: \n-------------------------------------- ");
-                                System.err.println(GSON.toJson(mySol));
-                                System.err.println("================================================");
-                                System.err.println(task.toString());
-                                System.err.println("------------------------------------------");
-                                j = 123123123;
-                                i = 123123123;
-                                density = 100;
-                            }
-
-                            if (!task.checkCondition(lbjSol)) {
-                                System.err.println(
-                                    "LBJ solution is bad: \n-------------------------------------- ");
-                                System.err.println(GSON.toJson(lbjSol));
-                                System.err.println("================================================");
-                                System.err.println(task.toString());
-                                System.err.println("------------------------------------------");
-                                j = 123123123;
-                                i = 123123123;
-                                density = 100;
-
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        System.err.println(task.toString());
-                        e.printStackTrace();
-                        System.exit(1);
-                    }
-
-
+                if (!task.checkCondition(lbjSol)) {
+                    System.err.println(
+                        "LBJ solution is bad: \n-------------------------------------- ");
+                    System.err.println(GSON.toJson(lbjSol));
+                    System.err
+                        .println("================================================");
+                    System.err.println(task.toString());
+                    System.err.println("------------------------------------------");
+                    return false;
                 }
             }
+
+        } catch (Exception e) {
+            System.err.println(task.toString());
+            e.printStackTrace();
+            System.exit(1);
         }
+        return true;
+    }
+
+    private static String setPrecision(double amt, int precision){
+        return String.format("%." + precision + "f", amt);
+    }
+
+    public static void loop(double density, int min_node, int max_node)
+        throws FileNotFoundException, UnsupportedEncodingException {
+
+        PrintWriter writer = new PrintWriter("benchs/bench_fol_d=" + setPrecision(density,1) + ".txt", "UTF-8");
+        PrintWriter writer_lbj = new PrintWriter("benchs/bench_lbj_d=" + setPrecision(density,1) + ".txt", "UTF-8");
+
+        boolean continue_ = true;
+        System.out.println("Density=" + setPrecision(density,1));
+        
+        for (int i = min_node; i < max_node && continue_; i++) {
+
+            
+
+            for (int k = 0; k < NUM_OF_TRAIL && continue_; k++) {
+                SetCoverTask task = new SetCoverTask(i, density);
+                for (int j = 0; j < 3 && continue_; j++) {
+                    conductExperiment(i,task,writer,writer_lbj);
+                }
+            }
+
+
+        }
+
         writer.close();
+        writer_lbj.close();
+    }
+
+
+    public static void main(String[] args)
+        throws FileNotFoundException, UnsupportedEncodingException, InterruptedException {
+
+        for(double d = 0.5 ; d <= 0.8; d += 0.1){
+            loop(d, Integer.parseInt(args[0]),Integer.parseInt(args[1]));
+        }
 
     }
 }

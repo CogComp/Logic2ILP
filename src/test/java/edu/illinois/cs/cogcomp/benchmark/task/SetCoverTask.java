@@ -19,10 +19,11 @@ import edu.illinois.cs.cogcomp.benchmark.TaskSolution;
 public class SetCoverTask {
 
     public TaskDescription toDesp() {
-        return new SetCoverTaskTaskDesp(this.numberOfNeiborhood, this.numberOfEdge);
+        return new SetCoverTaskTaskDesp(this.numberOfNeiborhood, this.numberOfEdge, this.density);
     }
 
-    public static class SetCoverSolution implements TaskSolution{
+    public static class SetCoverSolution implements TaskSolution {
+
         public int[] assigned;
 
         public SetCoverSolution(int[] assigned) {
@@ -32,17 +33,21 @@ public class SetCoverTask {
 
     public static class SetCoverTaskTaskDesp implements TaskDescription {
 
-        public SetCoverTaskTaskDesp(int numOfNode, int numOfEdge) {
+
+        public SetCoverTaskTaskDesp(int numOfNode, int numOfEdge, double density) {
             this.numOfNode = numOfNode;
             this.numOfEdge = numOfEdge;
+            this.density = density;
         }
 
         public int numOfNode;
         public int numOfEdge;
+        public double density;
     }
 
     private int numberOfNeiborhood;
     private int numberOfEdge;
+    private double density = 0;
     private int[][] graph;
 
 //    public SetCoverTask(int numberOfNeiborhood, int[][] graph) {
@@ -70,6 +75,7 @@ public class SetCoverTask {
     }
 
     private void randInitGraphWithSize(int size, double denseFactor) {
+        density = denseFactor;
         numberOfNeiborhood = size;
         numberOfEdge = 0;
         Random rand = new Random();
@@ -113,7 +119,7 @@ public class SetCoverTask {
         for (int k : assigned) {
             covered.add(k);
             for (int n : graph[k - 1]) {
-                covered.add(n+1);
+                covered.add(n + 1);
             }
         }
 

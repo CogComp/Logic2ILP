@@ -53,6 +53,26 @@ public class CCMLogicSolver {
     private static void recursiveTranslateConjunction(Problem problem, Conjunction conjunction,
                                                       String inheritedName, Counter variableCounter, Counter constraintCounter,
                                                       Map<String, ? extends CCMPredicate> predicateMap, Map<String, ? extends CCMTerm> termMap) {
+        List<FolFormula> oldFormulas = new ArrayList<>();
+        List<FolFormula> newFormulas = conjunction.getFormulas();
+        while (newFormulas.size() != oldFormulas.size()) {
+            oldFormulas = newFormulas;
+            newFormulas = new ArrayList<>();
+
+            for (FolFormula folFormula: oldFormulas) {
+                if (folFormula instanceof Conjunction) {
+                    newFormulas.addAll(((Conjunction) folFormula).getFormulas());
+                }
+                else if (folFormula instanceof Forall) {
+                    newFormulas.addAll(((Forall) folFormula).getFormulas());
+                }
+                else {
+                    newFormulas.add(folFormula);
+                }
+            }
+        }
+        conjunction = new Conjunction(newFormulas);
+
         if (inheritedName == null) {
             conjunction.getFormulas().forEach(folFormula -> {
                 recursiveTranslate(problem, folFormula, null, variableCounter, constraintCounter, predicateMap, termMap);
@@ -65,12 +85,22 @@ public class CCMLogicSolver {
             l2.add(-1, inheritedName);
 
             conjunction.getFormulas().forEach(folFormula -> {
-                variableCounter.increment();
-                addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
-                l1.add(1, variableCounter.toString());
-                l2.add(1, variableCounter.toString());
+                if (folFormula instanceof IndicatorVariable) {
+                    CCMPredicate predicate = predicateMap.get(((IndicatorVariable) folFormula).predicateId());
+                    CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
 
-                recursiveTranslate(problem, folFormula, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                    addIndicatorConstraint(problem, predicate.getID() + "$" + term.getID(), constraintCounter);
+                    l1.add(1, predicate.getID() + "$" + term.getID());
+                    l2.add(1, predicate.getID() + "$" + term.getID());
+                }
+                else {
+                    variableCounter.increment();
+                    addIndicatorConstraint(problem, variableCounter.toString(), constraintCounter);
+                    l1.add(1, variableCounter.toString());
+                    l2.add(1, variableCounter.toString());
+
+                    recursiveTranslate(problem, folFormula, variableCounter.toString(), variableCounter, constraintCounter, predicateMap, termMap);
+                }
             });
 
             addConstraint(problem, l1, ">=", 0, constraintCounter);

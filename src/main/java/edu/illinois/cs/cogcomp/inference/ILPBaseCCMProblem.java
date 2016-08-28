@@ -1,11 +1,5 @@
 package edu.illinois.cs.cogcomp.inference;
 
-import net.sf.javailp.Problem;
-import net.sf.javailp.Solver;
-import net.sf.javailp.SolverFactory;
-import net.sf.javailp.SolverFactoryGurobi;
-
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -13,6 +7,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import edu.illinois.cs.cogcomp.infer.ilp.GurobiHook;
+import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
+import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 /**
  * Created by haowu on 5/12/16.
@@ -31,7 +29,7 @@ public class ILPBaseCCMProblem {
     private List<FolFormula> constraints;
     private List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
 
-    private Problem problem;
+    private ILPSolver problem;
     private boolean debug;
 
     public ILPBaseCCMProblem(
@@ -43,61 +41,64 @@ public class ILPBaseCCMProblem {
         this.predicateMap = new HashMap<>();
         this.termMap = new HashMap<>();
 
-        for (Pair<CCMPredicate, Collection<? extends CCMTerm>> pair : objective){
+        for (Pair<CCMPredicate, Collection<? extends CCMTerm>> pair : objective) {
             CCMPredicate p = pair.getKey();
-            predicateMap.put(p.getID(),p);
+            predicateMap.put(p.getID(), p);
             Collection<? extends CCMTerm> terms = pair.getRight();
-            for (CCMTerm term : terms){
+            for (CCMTerm term : terms) {
                 termMap.put(term.getID(), term);
             }
         }
 
     }
 
-    public void addAdditionalTerm(Collection<? extends CCMTerm>  terms){
-        for (CCMTerm term : terms){
+    public void addAdditionalTerm(Collection<? extends CCMTerm> terms) {
+        for (CCMTerm term : terms) {
             termMap.put(term.getID(), term);
         }
     }
 
-    public void addAdditionalPredicate(Collection<CCMPredicate>  preds){
-        for (CCMPredicate pred: preds){
+    public void addAdditionalPredicate(Collection<CCMPredicate> preds) {
+        for (CCMPredicate pred : preds) {
             predicateMap.put(pred.getID(), pred);
         }
     }
 
 
-    public double solve(){
+    public double solve() {
         CCMLogicSolver ccmSolver = new CCMLogicSolver(objective, constraints, predicateMap,
                                                       termMap);
 
+        ILPSolver problem = new GurobiHook();
+        if (this.debug) {
 
-        if (this.debug){
-            ccmSolver.prepare();
-            System.out.println(ccmSolver.getProblem());
+            ccmSolver.prepare(problem);
+            StringBuffer buffer = new StringBuffer();
+            ccmSolver.getProblem().write(buffer);
+            System.out.println(buffer);
         }
 
-        SolverFactory factory = new SolverFactoryGurobi();
-        factory.setParameter(Solver.VERBOSE, 0);
-        factory.setParameter(Solver.TIMEOUT, 3000);
-
-        Solver solver = factory.get();
+//        SolverFactory factory = new SolverFactoryGurobi();
+//        factory.setParameter(Solver.VERBOSE, 0);
+//        factory.setParameter(Solver.TIMEOUT, 3000);
+//
+//        Solver solver = factory.get();
         final double startInferenceWalltime = System.currentTimeMillis();
 
-        ccmSolver.solve(solver);
+        ccmSolver.solve(problem);
 
         final double endInferenceWalltime = System.currentTimeMillis();
-        return endInferenceWalltime-startInferenceWalltime;
+        return endInferenceWalltime - startInferenceWalltime;
     }
 
-    public String getAssignment(String[] labels, CCMTerm term){
+    public String getAssignment(String[] labels, CCMTerm term) {
         String ret = null;
-        for (String label: labels){
+        for (String label : labels) {
             boolean assigned = this.predicateMap.get(label).getAssignment(term) == 1;
-            if (assigned){
-                if (ret != null){
+            if (assigned) {
+                if (ret != null) {
                     System.err.println("Duplicated assignment !");
-                }else{
+                } else {
                     ret = label;
                 }
             }
@@ -105,21 +106,21 @@ public class ILPBaseCCMProblem {
         return ret;
     }
 
-    public boolean isAssigned(CCMPredicate p, CCMTerm term){
+    public boolean isAssigned(CCMPredicate p, CCMTerm term) {
         boolean assigned = this.predicateMap.get(p.getID()).getAssignment(term) == 1;
         return assigned;
     }
 
 
     public void debug() {
-        for (FolFormula f : this.constraints){
+        for (FolFormula f : this.constraints) {
             System.out.println(f);
         }
         this.debug = true;
     }
 
     public void printConstraints() {
-        for (FolFormula f : this.constraints){
+        for (FolFormula f : this.constraints) {
             System.out.println(f.toString());
         }
     }

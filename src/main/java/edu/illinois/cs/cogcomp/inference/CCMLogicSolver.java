@@ -81,16 +81,12 @@ public class CCMLogicSolver {
 
 
     }
-
-    public void translateAndSolve(Solver ilpSolver) {
+    
+    public void solve(Solver ilpSolver) {
         if (problem == null) {
             prepare();
         }
 
-        solve(ilpSolver);
-    }
-
-    public void solve(Solver ilpSolver) {
         Result result = ilpSolver.solve(problem);
 
         predicateMap.forEach((s, ccmPredicate) -> {

@@ -1,20 +1,19 @@
 package edu.illinois.cs.cogcomp.inference;
 
-
-import net.sf.javailp.Constraint;
-import net.sf.javailp.Linear;
-import net.sf.javailp.OptType;
-import net.sf.javailp.Problem;
-import net.sf.javailp.Result;
-import net.sf.javailp.Solver;
+import gnu.trove.list.TDoubleList;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.linked.TDoubleLinkedList;
+import gnu.trove.list.linked.TIntLinkedList;
 
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
@@ -33,13 +32,47 @@ import edu.illinois.cs.cogcomp.ir.fol.quantifier.NotExactK;
  */
 public class CCMLogicSolver {
 
-    private Problem problem;
+    public enum Operator {
+        LE, GE, EQ
+    }
+
+    public class Linear {
+
+        public TIntList variables;
+        public TDoubleList weights;
+
+        public Linear() {
+            variables = new TIntLinkedList();
+            weights = new TDoubleLinkedList();
+        }
+
+        public void add(double weight, String variableName) {
+            int idx = getIdOfVariableThatAreNotInObj(variableName);
+            variables.add(idx);
+            weights.add(weight);
+        }
+    }
+
+    private ILPSolver problem;
     private final List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
     private final List<FolFormula> constraints;
     private final Counter variableCounter;
     private final Counter constraintCounter;
     private final Map<String, ? extends CCMPredicate> predicateMap;
     private final Map<String, ? extends CCMTerm> termMap;
+
+    // Stuff for Cogcomp Inference package.
+    Map<String, Integer> variableNameToInteger = new HashMap<>();
+
+    protected int getIdOfVariableThatAreNotInObj(String name) {
+        if (variableNameToInteger.containsKey(name)) {
+            return variableNameToInteger.get(name);
+        } else {
+            int newIdx = problem.addBooleanVariable(0);
+            variableNameToInteger.put(name, newIdx);
+            return newIdx;
+        }
+    }
 
     public CCMLogicSolver(
         List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
@@ -55,23 +88,39 @@ public class CCMLogicSolver {
         problem = null;
     }
 
-    public Problem getProblem() {
+    public ILPSolver getProblem() {
         return problem;
     }
 
-    public void prepare() {
-        this.problem = new Problem();
+    public void prepare(ILPSolver problem) {
         // Set objective function
-        Linear linear = new Linear();
-        objective.forEach(pair -> {
+        this.problem = problem;
+
+        for (Pair<CCMPredicate, Collection<? extends CCMTerm>> pair : objective) {
             CCMPredicate predicate = pair.getKey();
             Collection<? extends CCMTerm> terms = pair.getValue();
 
-            terms.forEach(term -> {
-                linear.add(predicate.getScore(term), predicate.getID() + "$" + term.getID());
-            });
-        });
-        problem.setObjective(linear, OptType.MAX);
+            for (CCMTerm term : terms) {
+                double weight = predicate.getScore(term);
+                String name = predicate.getID() + "$" + term.getID();
+                int idx = problem.addBooleanVariable(weight);
+                variableNameToInteger.put(name, idx);
+            }
+
+
+        }
+
+//        objective.forEach(pair -> {
+//            CCMPredicate predicate = pair.getKey();
+//            Collection<? extends CCMTerm> terms = pair.getValue();
+//
+//            terms.forEach(term -> {
+//                linear.add(predicate.getScore(term), predicate.getID() + "$" + term.getID());
+//            });
+//        });
+
+//        problem.setObjective(linear, OptType.MAX);
+        problem.setMaximize(true);
 
         // Set constraints
         constraints.forEach(folFormula -> {
@@ -82,39 +131,68 @@ public class CCMLogicSolver {
 
     }
 
-    public void solve(Solver ilpSolver) {
+    public void solve(ILPSolver ilpSolver) {
         if (problem == null) {
-            prepare();
+            prepare(ilpSolver);
         }
 
-        Result result = ilpSolver.solve(problem);
+        try {
+            ilpSolver.solve();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+//        Result result =
 
         predicateMap.forEach((s, ccmPredicate) -> {
-            ccmPredicate.setResult(result);
+            ccmPredicate.setResult(ilpSolver, this.variableNameToInteger);
         });
     }
 
-    private void addConstraint(Linear linear, String operator, Number rhs) {
+    private void addConstraint(Linear linear, Operator operator, double rhs) {
         constraintCounter.increment();
-        problem.add(new Constraint(constraintCounter.toString(), linear, operator, rhs));
+        switch (operator) {
+            case GE:
+                problem
+                    .addGreaterThanConstraint(linear.variables.toArray(), linear.weights.toArray(),
+                                              rhs);
+//                problem.add(new Constraint(constraintCounter.toString(), linear, ">=", rhs));
+                break;
+            case LE:
+                problem.addLessThanConstraint(linear.variables.toArray(), linear.weights.toArray(),
+                                              rhs);
+//                problem.add(new Constraint(constraintCounter.toString(), linear, "<=", rhs));
+                break;
+            case EQ:
+                problem.addEqualityConstraint(linear.variables.toArray(), linear.weights.toArray(),
+                                              rhs);
+//                problem.add(new Constraint(constraintCounter.toString(), linear, "=", rhs));
+                break;
+            default:
+                break;
+        }
     }
 
-    private void addIndicatorConstraint(String variable) {
-        problem.setVarType(variable, Boolean.class);
+    private void addIndicatorConstraint(String variableName) {
+
+        if (!variableNameToInteger.containsKey(variableName)) {
+            int newIdx = problem.addBooleanVariable(0);
+            variableNameToInteger.put(variableName, newIdx);
+        }
     }
 
     private void addEquivalenceConstraint(String variable1, String variable2) {
         Linear linear = new Linear();
         linear.add(1, variable1);
         linear.add(-1, variable2);
-        addConstraint(linear, "=", 0);
+        addConstraint(linear, Operator.EQ, 0);
     }
 
     private void addNegationConstraint(String variable1, String variable2) {
         Linear linear = new Linear();
         linear.add(1, variable1);
         linear.add(1, variable2);
-        addConstraint(linear, "=", 1);
+        addConstraint(linear, Operator.EQ, 1);
     }
 
     private void handleNonIndiactorChildren(FolFormula folFormula, Linear... linears) {
@@ -175,8 +253,8 @@ public class CCMLogicSolver {
                 handleFormulaChildren(l1, l2, folFormula);
             }
 
-            addConstraint(l1, ">=", 0);
-            addConstraint(l2, "<=", conjunction.getFormulas().size() - 1);
+            addConstraint(l1, Operator.GE, 0);
+            addConstraint(l2, Operator.LE, conjunction.getFormulas().size() - 1);
         }
     }
 
@@ -220,7 +298,7 @@ public class CCMLogicSolver {
                 }
             });
 
-            addConstraint(l1, ">=", 1);
+            addConstraint(l1, Operator.GE, 1);
         } else {
             Linear l1 = new Linear();
             Linear l2 = new Linear();
@@ -230,8 +308,8 @@ public class CCMLogicSolver {
                 handleFormulaChildren(l1, l2, folFormula);
             }
 
-            addConstraint(l1, ">=", 0);
-            addConstraint(l2, "<=", 0);
+            addConstraint(l1, Operator.GE, 0);
+            addConstraint(l2, Operator.LE, 0);
         }
     }
 
@@ -243,7 +321,7 @@ public class CCMLogicSolver {
                 handleNonIndiactorChildren(folFormula, l1);
             }
 
-            addConstraint(l1, "=", exactK.getK());
+            addConstraint(l1, Operator.EQ, exactK.getK());
         } else {
             Linear l1 = new Linear();
             Linear l2 = new Linear();
@@ -258,10 +336,10 @@ public class CCMLogicSolver {
                 handleNonIndiactorChildren(folFormula, l1, l2, l3, l4);
             }
 
-            addConstraint(l1, ">=", 0);
-            addConstraint(l2, "<=", exactK.getK() - 1);
-            addConstraint(l3, "<=", exactK.getFormulas().size());
-            addConstraint(l4, ">=", exactK.getK() + 1);
+            addConstraint(l1, Operator.GE, 0);
+            addConstraint(l2, Operator.LE, exactK.getK() - 1);
+            addConstraint(l3, Operator.LE, exactK.getFormulas().size());
+            addConstraint(l4, Operator.GE, exactK.getK() + 1);
         }
     }
 
@@ -273,7 +351,7 @@ public class CCMLogicSolver {
                 handleNonIndiactorChildren(folFormula, l1);
             }
 
-            addConstraint(l1, ">=", atLeast.getK());
+            addConstraint(l1, Operator.GE, atLeast.getK());
         } else {
             Linear l1 = new Linear();
             Linear l2 = new Linear();
@@ -284,8 +362,8 @@ public class CCMLogicSolver {
                 handleNonIndiactorChildren(folFormula, l1, l2);
             }
 
-            addConstraint(l1, ">=", 0);
-            addConstraint(l2, "<=", atLeast.getK() - 1);
+            addConstraint(l1, Operator.GE, 0);
+            addConstraint(l2, Operator.LE, atLeast.getK() - 1);
         }
     }
 
@@ -297,7 +375,7 @@ public class CCMLogicSolver {
                 handleNonIndiactorChildren(folFormula, l1);
             }
 
-            addConstraint(l1, "<=", atMost.getK());
+            addConstraint(l1, Operator.LE, atMost.getK());
         } else {
             Linear l1 = new Linear();
             Linear l2 = new Linear();
@@ -308,8 +386,8 @@ public class CCMLogicSolver {
                 handleNonIndiactorChildren(folFormula, l1, l2);
             }
 
-            addConstraint(l1, "<=", atMost.getFormulas().size());
-            addConstraint(l2, ">=", atMost.getK() + 1);
+            addConstraint(l1, Operator.LE, atMost.getFormulas().size());
+            addConstraint(l2, Operator.GE, atMost.getK() + 1);
         }
     }
 

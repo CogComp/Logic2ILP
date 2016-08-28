@@ -1,7 +1,8 @@
 package edu.illinois.cs.cogcomp.inference;
 
-import net.sf.javailp.Result;
+import java.util.Map;
 
+import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 
 /**
@@ -9,25 +10,33 @@ import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
  */
 public abstract class CCMPredicate<X> {
 
-    private Result result;
+    private ILPSolver result;
+    private Map<String, Integer> lexicon;
 
-    public void setResult(Result result) {
+    public void setResult(ILPSolver result, Map<String, Integer> lexicon) {
         this.result = result;
+        this.lexicon = lexicon;
     }
 
     public int getAssignment(CCMTerm term) {
-        return result.get(getID() + "$" + term.getID()).intValue();
+        String name = getID() + "$" + term.getID();
+        int idx = lexicon.get(name);
+        if (result.getBooleanValue(idx)) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     public abstract String getID();
 
     public abstract double getScore(CCMTerm<X> term);
 
-    public String _(CCMTerm t){
-        return getID()+"$"+t.getID();
+    public String _(CCMTerm t) {
+        return getID() + "$" + t.getID();
     }
 
-    public IndicatorVariable on(CCMTerm t){
+    public IndicatorVariable on(CCMTerm t) {
         return new IndicatorVariable(this.getID(), t.getID());
     }
 

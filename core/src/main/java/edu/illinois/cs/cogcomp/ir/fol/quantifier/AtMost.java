@@ -16,11 +16,19 @@ public class AtMost implements FolFormula {
     private List<FolFormula> formulas;
 
     public AtMost(int k, List<FolFormula> formulas) {
+        if (k < 0) {
+            throw new RuntimeException("K has to be non-negative.");
+        }
+
         this.formulas = formulas;
         this.k = k;
     }
 
     public AtMost(int k, FolFormula... formulas) {
+        if (k < 0) {
+            throw new RuntimeException("K has to be non-negative.");
+        }
+
         this.formulas = new ArrayList<>();
         for (FolFormula f : formulas) {
             this.formulas.add(f);

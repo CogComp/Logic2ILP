@@ -235,22 +235,24 @@ public class CCMLogicSolver {
         }
         conjunction = new Conjunction(newFormulas);
 
-        if (inheritedName == null) {
-            conjunction.getFormulas().forEach(folFormula -> {
-                translate(folFormula, null);
-            });
-        } else {
-            Linear l1 = new Linear();
-            Linear l2 = new Linear();
-            l1.add(-conjunction.getFormulas().size(), inheritedName);
-            l2.add(-1, inheritedName);
+        if (conjunction.getFormulas().size() > 0) {
+            if (inheritedName == null) {
+                conjunction.getFormulas().forEach(folFormula -> {
+                    translate(folFormula, null);
+                });
+            } else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(-conjunction.getFormulas().size(), inheritedName);
+                l2.add(-1, inheritedName);
 
-            for (FolFormula folFormula : conjunction.getFormulas()) {
-                handleFormulaChildren(folFormula, l1, l2);
+                for (FolFormula folFormula : conjunction.getFormulas()) {
+                    handleFormulaChildren(folFormula, l1, l2);
+                }
+
+                addConstraint(l1, Operator.GE, 0);
+                addConstraint(l2, Operator.LE, conjunction.getFormulas().size() - 1);
             }
-
-            addConstraint(l1, Operator.GE, 0);
-            addConstraint(l2, Operator.LE, conjunction.getFormulas().size() - 1);
         }
     }
 
@@ -273,39 +275,52 @@ public class CCMLogicSolver {
         }
         disjunction = new Disjunction(newFormulas);
 
-        if (inheritedName == null) {
-            Linear l1 = new Linear();
+        if (disjunction.getFormulas().size() > 0) {
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
 
-            disjunction.getFormulas().forEach(folFormula -> {
-                if (folFormula instanceof IndicatorVariable) {
-                    CCMPredicate
-                        predicate =
-                        predicateMap.get(((IndicatorVariable) folFormula).predicateId());
-                    CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
+                disjunction.getFormulas().forEach(folFormula -> {
+                    if (folFormula instanceof IndicatorVariable) {
+                        CCMPredicate
+                                predicate =
+                                predicateMap.get(((IndicatorVariable) folFormula).predicateId());
+                        CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
 
-                    addIndicatorConstraint(predicate.getID() + "$" + term.getID());
-                    l1.add(1, predicate.getID() + "$" + term.getID());
-                } else {
-                    variableCounter.increment();
-                    addIndicatorConstraint(variableCounter.toString());
-                    l1.add(1, variableCounter.toString());
+                        addIndicatorConstraint(predicate.getID() + "$" + term.getID());
+                        l1.add(1, predicate.getID() + "$" + term.getID());
+                    } else {
+                        variableCounter.increment();
+                        addIndicatorConstraint(variableCounter.toString());
+                        l1.add(1, variableCounter.toString());
 
-                    translate(folFormula, variableCounter.toString());
+                        translate(folFormula, variableCounter.toString());
+                    }
+                });
+
+                addConstraint(l1, Operator.GE, 1);
+            } else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(-1, inheritedName);
+                l2.add(-disjunction.getFormulas().size(), inheritedName);
+                for (FolFormula folFormula : disjunction.getFormulas()) {
+                    handleFormulaChildren(folFormula, l1, l2);
                 }
-            });
 
-            addConstraint(l1, Operator.GE, 1);
-        } else {
-            Linear l1 = new Linear();
-            Linear l2 = new Linear();
-            l1.add(-1, inheritedName);
-            l2.add(-disjunction.getFormulas().size(), inheritedName);
-            for (FolFormula folFormula : disjunction.getFormulas()) {
-                handleFormulaChildren(folFormula, l1, l2);
+                addConstraint(l1, Operator.GE, 0);
+                addConstraint(l2, Operator.LE, 0);
             }
-
-            addConstraint(l1, Operator.GE, 0);
-            addConstraint(l2, Operator.LE, 0);
+        }
+        else {
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
+                addConstraint(l1, Operator.EQ, 1);
+            }
+            else {
+                Linear l1 = new Linear();
+                l1.add(1, inheritedName);
+                addConstraint(l1, Operator.EQ, 0);
+            }
         }
     }
 
@@ -340,50 +355,72 @@ public class CCMLogicSolver {
     }
 
     private void translateAtLeast(AtLeast atLeast, String inheritedName) {
-        if (inheritedName == null) {
-            Linear l1 = new Linear();
-
-            for (FolFormula folFormula : atLeast.getFormulas()) {
-                handleFormulaChildren(folFormula, l1);
+        if (atLeast.getK() > atLeast.getFormulas().size()) {
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
+                addConstraint(l1, Operator.EQ, 1);
             }
-
-            addConstraint(l1, Operator.GE, atLeast.getK());
-        } else {
-            Linear l1 = new Linear();
-            Linear l2 = new Linear();
-            l1.add(-atLeast.getK(), inheritedName);
-            l2.add(-atLeast.getFormulas().size(), inheritedName);
-
-            for (FolFormula folFormula : atLeast.getFormulas()) {
-                handleFormulaChildren(folFormula, l1, l2);
+            else {
+                Linear l1 = new Linear();
+                l1.add(1, inheritedName);
+                addConstraint(l1, Operator.EQ, 0);
             }
+        }
+        else {
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
 
-            addConstraint(l1, Operator.GE, 0);
-            addConstraint(l2, Operator.LE, atLeast.getK() - 1);
+                for (FolFormula folFormula : atLeast.getFormulas()) {
+                    handleFormulaChildren(folFormula, l1);
+                }
+
+                addConstraint(l1, Operator.GE, atLeast.getK());
+            } else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(-atLeast.getK(), inheritedName);
+                l2.add(-atLeast.getFormulas().size(), inheritedName);
+
+                for (FolFormula folFormula : atLeast.getFormulas()) {
+                    handleFormulaChildren(folFormula, l1, l2);
+                }
+
+                addConstraint(l1, Operator.GE, 0);
+                addConstraint(l2, Operator.LE, atLeast.getK() - 1);
+            }
         }
     }
 
     private void translateAtMost(AtMost atMost, String inheritedName) {
-        if (inheritedName == null) {
-            Linear l1 = new Linear();
-
-            for (FolFormula folFormula : atMost.getFormulas()) {
-                handleFormulaChildren(folFormula, l1);
+        if (atMost.getK() >= atMost.getFormulas().size()) {
+            if (inheritedName != null) {
+                Linear l1 = new Linear();
+                l1.add(1, inheritedName);
+                addConstraint(l1, Operator.EQ, 1);
             }
+        }
+        else {
+            if (inheritedName == null) {
+                Linear l1 = new Linear();
 
-            addConstraint(l1, Operator.LE, atMost.getK());
-        } else {
-            Linear l1 = new Linear();
-            Linear l2 = new Linear();
-            l1.add(atMost.getFormulas().size() - atMost.getK(), inheritedName);
-            l2.add(atMost.getFormulas().size(), inheritedName);
+                for (FolFormula folFormula : atMost.getFormulas()) {
+                    handleFormulaChildren(folFormula, l1);
+                }
 
-            for (FolFormula folFormula : atMost.getFormulas()) {
-                handleFormulaChildren(folFormula, l1, l2);
+                addConstraint(l1, Operator.LE, atMost.getK());
+            } else {
+                Linear l1 = new Linear();
+                Linear l2 = new Linear();
+                l1.add(atMost.getFormulas().size() - atMost.getK(), inheritedName);
+                l2.add(atMost.getFormulas().size(), inheritedName);
+
+                for (FolFormula folFormula : atMost.getFormulas()) {
+                    handleFormulaChildren(folFormula, l1, l2);
+                }
+
+                addConstraint(l1, Operator.LE, atMost.getFormulas().size());
+                addConstraint(l2, Operator.GE, atMost.getK() + 1);
             }
-
-            addConstraint(l1, Operator.LE, atMost.getFormulas().size());
-            addConstraint(l2, Operator.GE, atMost.getK() + 1);
         }
     }
 

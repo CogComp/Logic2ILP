@@ -1,0 +1,1 @@
+antlr -package edu.illinois.cs.cogcomp.fol_ilp.grammar -o src/main/java/edu/illinois/cs/cogcomp/fol_ilp/  grammar/CcmFol.g4

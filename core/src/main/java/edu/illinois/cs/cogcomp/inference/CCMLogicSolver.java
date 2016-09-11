@@ -1,19 +1,15 @@
 package edu.illinois.cs.cogcomp.inference;
 
-import gnu.trove.list.TDoubleList;
-import gnu.trove.list.TIntList;
-import gnu.trove.list.linked.TDoubleLinkedList;
-import gnu.trove.list.linked.TIntLinkedList;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
+import edu.illinois.cs.cogcomp.inference.repr.ILPProblem;
+import edu.illinois.cs.cogcomp.inference.repr.Linear;
+import edu.illinois.cs.cogcomp.inference.repr.Operator;
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
@@ -32,28 +28,8 @@ import edu.illinois.cs.cogcomp.ir.fol.quantifier.NotExactK;
  */
 public class CCMLogicSolver {
 
-    public enum Operator {
-        LE, GE, EQ
-    }
 
-    public class Linear {
-
-        public TIntList variables;
-        public TDoubleList weights;
-
-        public Linear() {
-            variables = new TIntLinkedList();
-            weights = new TDoubleLinkedList();
-        }
-
-        public void add(double weight, String variableName) {
-            int idx = getIdOfVariableThatAreNotInObj(variableName);
-            variables.add(idx);
-            weights.add(weight);
-        }
-    }
-
-    private ILPSolver problem;
+    ILPProblem problem;
     private final List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
     private final List<FolFormula> constraints;
     private final Counter variableCounter;
@@ -62,17 +38,6 @@ public class CCMLogicSolver {
     private final Map<String, ? extends CCMTerm> termMap;
 
     // Stuff for Cogcomp Inference package.
-    Map<String, Integer> variableNameToInteger = new HashMap<>();
-
-    protected int getIdOfVariableThatAreNotInObj(String name) {
-        if (variableNameToInteger.containsKey(name)) {
-            return variableNameToInteger.get(name);
-        } else {
-            int newIdx = problem.addBooleanVariable(0);
-            variableNameToInteger.put(name, newIdx);
-            return newIdx;
-        }
-    }
 
     public CCMLogicSolver(
         List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
@@ -88,11 +53,11 @@ public class CCMLogicSolver {
         problem = null;
     }
 
-    public ILPSolver getProblem() {
+    public ILPProblem getProblem() {
         return problem;
     }
 
-    public void prepare(ILPSolver problem) {
+    public void prepare(ILPProblem problem) {
         // Set objective function
         this.problem = problem;
 
@@ -103,8 +68,7 @@ public class CCMLogicSolver {
             for (CCMTerm term : terms) {
                 double weight = predicate.getScore(term);
                 String name = predicate.getID() + "$" + term.getID();
-                int idx = problem.addBooleanVariable(weight);
-                variableNameToInteger.put(name, idx);
+                int idx = problem.introduceVariableToObjective(name, weight);
             }
 
 
@@ -131,13 +95,13 @@ public class CCMLogicSolver {
 
     }
 
-    public void solve(ILPSolver ilpSolver) {
+    public void solve(ILPProblem ilpProblem) {
         if (problem == null) {
-            prepare(ilpSolver);
+            prepare(ilpProblem);
         }
 
         try {
-            ilpSolver.solve();
+            ilpProblem.solve();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -145,7 +109,7 @@ public class CCMLogicSolver {
 //        Result result =
 
         predicateMap.forEach((s, ccmPredicate) -> {
-            ccmPredicate.setResult(ilpSolver, this.variableNameToInteger);
+            ccmPredicate.setResult(ilpProblem);
         });
     }
 
@@ -154,19 +118,16 @@ public class CCMLogicSolver {
         switch (operator) {
             case GE:
                 problem
-                    .addGreaterThanConstraint(linear.variables.toArray(), linear.weights.toArray(),
+                    .addGreaterThanConstraint(linear.variables, linear.weights.toArray(),
                                               rhs);
-//                problem.add(new Constraint(constraintCounter.toString(), linear, ">=", rhs));
                 break;
             case LE:
-                problem.addLessThanConstraint(linear.variables.toArray(), linear.weights.toArray(),
+                problem.addLessThanConstraint(linear.variables, linear.weights.toArray(),
                                               rhs);
-//                problem.add(new Constraint(constraintCounter.toString(), linear, "<=", rhs));
                 break;
             case EQ:
-                problem.addEqualityConstraint(linear.variables.toArray(), linear.weights.toArray(),
+                problem.addEqualityConstraint(linear.variables, linear.weights.toArray(),
                                               rhs);
-//                problem.add(new Constraint(constraintCounter.toString(), linear, "=", rhs));
                 break;
             default:
                 break;
@@ -174,11 +135,7 @@ public class CCMLogicSolver {
     }
 
     private void addIndicatorConstraint(String variableName) {
-
-        if (!variableNameToInteger.containsKey(variableName)) {
-            int newIdx = problem.addBooleanVariable(0);
-            variableNameToInteger.put(variableName, newIdx);
-        }
+        this.problem.introduceVariableToObjective(variableName, 0);
     }
 
     private void addEquivalenceConstraint(String variable1, String variable2) {
@@ -197,7 +154,9 @@ public class CCMLogicSolver {
 
     private void handleFormulaChildren(FolFormula folFormula, Linear... linears) {
         if (folFormula instanceof IndicatorVariable) {
-            CCMPredicate predicate = predicateMap.get(((IndicatorVariable) folFormula).predicateId());
+            CCMPredicate
+                predicate =
+                predicateMap.get(((IndicatorVariable) folFormula).predicateId());
             CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
 
             addIndicatorConstraint(predicate.getID() + "$" + term.getID());
@@ -282,8 +241,8 @@ public class CCMLogicSolver {
                 disjunction.getFormulas().forEach(folFormula -> {
                     if (folFormula instanceof IndicatorVariable) {
                         CCMPredicate
-                                predicate =
-                                predicateMap.get(((IndicatorVariable) folFormula).predicateId());
+                            predicate =
+                            predicateMap.get(((IndicatorVariable) folFormula).predicateId());
                         CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
 
                         addIndicatorConstraint(predicate.getID() + "$" + term.getID());
@@ -310,13 +269,11 @@ public class CCMLogicSolver {
                 addConstraint(l1, Operator.GE, 0);
                 addConstraint(l2, Operator.LE, 0);
             }
-        }
-        else {
+        } else {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
                 addConstraint(l1, Operator.EQ, 1);
-            }
-            else {
+            } else {
                 Linear l1 = new Linear();
                 l1.add(1, inheritedName);
                 addConstraint(l1, Operator.EQ, 0);
@@ -359,14 +316,12 @@ public class CCMLogicSolver {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
                 addConstraint(l1, Operator.EQ, 1);
-            }
-            else {
+            } else {
                 Linear l1 = new Linear();
                 l1.add(1, inheritedName);
                 addConstraint(l1, Operator.EQ, 0);
             }
-        }
-        else {
+        } else {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 
@@ -398,8 +353,7 @@ public class CCMLogicSolver {
                 l1.add(1, inheritedName);
                 addConstraint(l1, Operator.EQ, 1);
             }
-        }
-        else {
+        } else {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 

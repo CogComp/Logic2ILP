@@ -8,9 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.illinois.cs.cogcomp.infer.ilp.BeamSearch;
 import edu.illinois.cs.cogcomp.infer.ilp.GurobiHook;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
+import edu.illinois.cs.cogcomp.inference.repr.ILPProblem;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 /**
@@ -30,7 +30,7 @@ public class ILPBaseCCMProblem {
     private List<FolFormula> constraints;
     private List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
 
-    private ILPSolver problem;
+    private ILPProblem problem;
     private boolean debug;
 
     public ILPBaseCCMProblem(
@@ -70,13 +70,11 @@ public class ILPBaseCCMProblem {
         CCMLogicSolver ccmSolver = new CCMLogicSolver(objective, constraints, predicateMap,
                                                       termMap);
 
-        ILPSolver problem = new GurobiHook();
-        if (this.debug) {
+        this.problem = new ILPProblem(new GurobiHook());
 
+        if (this.debug) {
             ccmSolver.prepare(problem);
-            StringBuffer buffer = new StringBuffer();
-            ccmSolver.getProblem().write(buffer);
-            System.out.println(buffer);
+            System.out.println(problem.toString());
         }
 
 //        SolverFactory factory = new SolverFactoryGurobi();

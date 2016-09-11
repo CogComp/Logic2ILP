@@ -3,6 +3,7 @@ package edu.illinois.cs.cogcomp.inference;
 import java.util.Map;
 
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
+import edu.illinois.cs.cogcomp.inference.repr.ILPProblem;
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 
 /**
@@ -10,18 +11,15 @@ import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
  */
 public abstract class CCMPredicate<X> {
 
-    private ILPSolver result;
-    private Map<String, Integer> lexicon;
+    private ILPProblem result;
 
-    public void setResult(ILPSolver result, Map<String, Integer> lexicon) {
+    public void setResult(ILPProblem result) {
         this.result = result;
-        this.lexicon = lexicon;
     }
 
     public int getAssignment(CCMTerm term) {
         String name = getID() + "$" + term.getID();
-        int idx = lexicon.get(name);
-        if (result.getBooleanValue(idx)) {
+        if (result.getBooleanValue(name)) {
             return 1;
         } else {
             return 0;

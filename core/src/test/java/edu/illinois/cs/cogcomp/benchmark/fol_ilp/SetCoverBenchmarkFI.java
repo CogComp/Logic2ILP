@@ -197,9 +197,11 @@ public class SetCoverBenchmarkFI {
     public static void main(String[] args)
         throws FileNotFoundException, UnsupportedEncodingException, InterruptedException {
 
-        for (double d = 0.2; d < 0.4; d += 0.1) {
-            loop(d, Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-        }
+        loop(0.2,20,25);
+
+//        for (double d = 0.2; d < 0.4; d += 0.1) {
+//            loop(d, Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+//        }
 
     }
 }

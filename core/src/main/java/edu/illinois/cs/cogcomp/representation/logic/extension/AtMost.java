@@ -1,19 +1,19 @@
-package edu.illinois.cs.cogcomp.ir.fol.quantifier;
+package edu.illinois.cs.cogcomp.representation.logic.extension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 /**
  * Created by haowu on 5/19/16.
  */
-public class AtLeast implements FolFormula {
+public class AtMost implements LogicFormula {
 
     private int k;
-    private List<FolFormula> formulas;
+    private List<LogicFormula> formulas;
 
-    public AtLeast(int k, List<FolFormula> formulas) {
+    public AtMost(int k, List<LogicFormula> formulas) {
         if (k < 0) {
             throw new RuntimeException("K has to be non-negative.");
         }
@@ -22,20 +22,19 @@ public class AtLeast implements FolFormula {
         this.k = k;
     }
 
-    public AtLeast(int k, FolFormula... formulas) {
+    public AtMost(int k, LogicFormula... formulas) {
         if (k < 0) {
             throw new RuntimeException("K has to be non-negative.");
         }
 
         this.formulas = new ArrayList<>();
-        for (FolFormula f : formulas){
+        for (LogicFormula f : formulas) {
             this.formulas.add(f);
         }
         this.k = k;
     }
 
-
-    public List<FolFormula> getFormulas() {
+    public List<LogicFormula> getFormulas() {
         return this.formulas;
     }
 
@@ -44,13 +43,13 @@ public class AtLeast implements FolFormula {
     }
 
     @Override
-    public FolFormula toNnf() {
-        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+    public LogicFormula toNnf() {
+        List<LogicFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
             formulas.add(folFormula.toNnf());
         });
 
-        return new AtLeast(this.k, formulas);
+        return new AtMost(this.k, formulas);
     }
 
 }

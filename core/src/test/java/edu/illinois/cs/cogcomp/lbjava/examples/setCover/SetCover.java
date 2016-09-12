@@ -3,7 +3,6 @@
 
 package edu.illinois.cs.cogcomp.lbjava.examples.setCover;
 
-import edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook;
 import edu.illinois.cs.cogcomp.lbjava.classify.*;
 import edu.illinois.cs.cogcomp.lbjava.examples.setCover.City;
 import edu.illinois.cs.cogcomp.lbjava.examples.setCover.ContainsStation;
@@ -26,7 +25,7 @@ public class SetCover extends ILPInference
   public SetCover() { }
   public SetCover(City head)
   {
-    super(head, new edu.illinois.cs.cogcomp.infer.ilp.OJalgoHook());
+    super(head, new OJalgoHook());
     constraint = new SetCover$subjectto().makeConstraint(head);
   }
 

@@ -1,42 +1,41 @@
-package edu.illinois.cs.cogcomp.ir.fol.norm;
+package edu.illinois.cs.cogcomp.representation.logic.basic;
 
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
-
 /**
  * Created by haowu on 5/19/16.
  */
-public class Conjunction implements FolFormula {
+public class Conjunction implements LogicFormula {
 
-    private List<FolFormula> formulas;
+    private List<LogicFormula> formulas;
 
     /**
      * Return the conjunction of a list of Fol formula.
      * @param formulas list of Fol formula
      */
-    public Conjunction(List<FolFormula> formulas) {
+    public Conjunction(List<LogicFormula> formulas) {
         this.formulas = formulas;
     }
 
-    public Conjunction(FolFormula... formulas) {
+    public Conjunction(LogicFormula... formulas) {
         this.formulas = new ArrayList<>();
-        for (FolFormula f : formulas) {
+        for (LogicFormula f : formulas) {
             this.formulas.add(f);
         }
     }
 
-    public List<FolFormula> getFormulas() {
+    public List<LogicFormula> getFormulas() {
         return this.formulas;
     }
 
     @Override
-    public FolFormula toNnf() {
-        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+    public LogicFormula toNnf() {
+        List<LogicFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
             formulas.add(folFormula.toNnf());
         });

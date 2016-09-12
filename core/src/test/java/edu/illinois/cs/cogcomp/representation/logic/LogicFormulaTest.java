@@ -1,22 +1,16 @@
-package edu.illinois.cs.cogcomp.ir.fol;
+package edu.illinois.cs.cogcomp.representation.logic;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
-import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
-import edu.illinois.cs.cogcomp.ir.fol.norm.Disjunction;
-import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
-
-import static org.junit.Assert.*;
+import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
 
 /**
  * Created by haowu on 5/19/16.
  */
-public class FolFormulaTest {
+public class LogicFormulaTest {
 
     @Test
     public void evalNormForm() throws Exception {

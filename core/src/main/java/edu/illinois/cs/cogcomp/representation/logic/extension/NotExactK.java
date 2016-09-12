@@ -1,6 +1,6 @@
-package edu.illinois.cs.cogcomp.ir.fol.quantifier;
+package edu.illinois.cs.cogcomp.representation.logic.extension;
 
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,20 +8,20 @@ import java.util.List;
 /**
  * Created by chen386 on 8/26/16.
  */
-public class NotExactK implements FolFormula {
+public class NotExactK implements LogicFormula {
 
     private int k;
-    private List<FolFormula> formulas;
+    private List<LogicFormula> formulas;
 
-    public NotExactK(int k, List<FolFormula> formulas) {
+    public NotExactK(int k, List<LogicFormula> formulas) {
         this.k = k;
         this.formulas = formulas;
     }
 
 
-    public NotExactK(int k, FolFormula... formulas) {
+    public NotExactK(int k, LogicFormula... formulas) {
         this.formulas = new ArrayList<>();
-        for (FolFormula f : formulas) {
+        for (LogicFormula f : formulas) {
             this.formulas.add(f);
         }
         this.k = k;
@@ -31,13 +31,13 @@ public class NotExactK implements FolFormula {
         return k;
     }
 
-    public List<FolFormula> getFormulas() {
+    public List<LogicFormula> getFormulas() {
         return this.formulas;
     }
 
     @Override
-    public FolFormula toNnf() {
-        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+    public LogicFormula toNnf() {
+        List<LogicFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
             formulas.add(folFormula.toNnf());
         });

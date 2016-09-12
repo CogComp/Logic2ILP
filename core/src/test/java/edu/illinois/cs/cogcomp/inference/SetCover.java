@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.inference;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -8,11 +7,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 import static edu.illinois.cs.cogcomp.util.Helper.Register;
 import static edu.illinois.cs.cogcomp.util.Helper.T;
-import static edu.illinois.cs.cogcomp.util.Helper.apply;
 import static edu.illinois.cs.cogcomp.util.Helper.argmin;
 import static edu.illinois.cs.cogcomp.util.Helper.exist;
 import static edu.illinois.cs.cogcomp.util.Helper.makePredicate;
@@ -101,8 +99,8 @@ public class SetCover {
             coverageConstraints =
             new ConstraintFunction<>(x ->
                                      {
-                                         FolFormula hasStationOnX = hasStation.on(T(x));
-                                         FolFormula
+                                         LogicFormula hasStationOnX = hasStation.on(T(x));
+                                         LogicFormula
                                              hasStationOnAdjacents =
                                              exist(x.getAdjacent(), z -> hasStation.on(T(z)));
                                          return or(hasStationOnX, hasStationOnAdjacents);

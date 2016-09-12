@@ -1,11 +1,11 @@
-package edu.illinois.cs.cogcomp.ir;
+package edu.illinois.cs.cogcomp.representation;
 
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 /**
  * Created by haowu on 5/19/16.
  */
-public class IndicatorVariable implements FolFormula {
+public class IndicatorVariable implements LogicFormula {
     private final String p;
     private final String t;
 
@@ -54,8 +54,8 @@ public class IndicatorVariable implements FolFormula {
     }
 
     @Override
-    public FolFormula toNnf() {
-        return null;
+    public LogicFormula toNnf() {
+        return this;
     }
 
 }

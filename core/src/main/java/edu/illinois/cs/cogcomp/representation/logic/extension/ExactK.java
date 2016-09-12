@@ -1,27 +1,27 @@
-package edu.illinois.cs.cogcomp.ir.fol.quantifier;
+package edu.illinois.cs.cogcomp.representation.logic.extension;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 /**
  * Created by haowu on 5/19/16.
  */
-public class ExactK implements FolFormula {
+public class ExactK implements LogicFormula {
 
     private int k;
-    private List<FolFormula> formulas;
+    private List<LogicFormula> formulas;
 
-    public ExactK(int k, List<FolFormula> formulas) {
+    public ExactK(int k, List<LogicFormula> formulas) {
         this.k = k;
         this.formulas = formulas;
     }
 
 
-    public ExactK(int k, FolFormula... formulas) {
+    public ExactK(int k, LogicFormula... formulas) {
         this.formulas = new ArrayList<>();
-        for (FolFormula f : formulas) {
+        for (LogicFormula f : formulas) {
             this.formulas.add(f);
         }
         this.k = k;
@@ -31,13 +31,13 @@ public class ExactK implements FolFormula {
         return k;
     }
 
-    public List<FolFormula> getFormulas() {
+    public List<LogicFormula> getFormulas() {
         return this.formulas;
     }
 
     @Override
-    public FolFormula toNnf() {
-        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+    public LogicFormula toNnf() {
+        List<LogicFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
             formulas.add(folFormula.toNnf());
         });

@@ -1,10 +1,7 @@
 package edu.illinois.cs.cogcomp.inference;
 
-import java.util.Map;
-
-import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
-import edu.illinois.cs.cogcomp.inference.repr.ILPProblem;
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
+import edu.illinois.cs.cogcomp.inference.ilp.representation.ILPProblem;
+import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
 
 /**
  * Created by haowu on 4/23/16.

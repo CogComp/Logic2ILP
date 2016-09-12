@@ -11,7 +11,7 @@ import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblem;
 import edu.illinois.cs.cogcomp.inference.Objective;
 import edu.illinois.cs.cogcomp.inference.SetCover;
 import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 import static edu.illinois.cs.cogcomp.benchmark.fol_ilp.SetCoverBenchmarkFI.GSON;
 import static edu.illinois.cs.cogcomp.benchmark.fol_ilp.SetCoverBenchmarkFI.solve;
@@ -20,7 +20,6 @@ import static edu.illinois.cs.cogcomp.util.Helper.Register;
 import static edu.illinois.cs.cogcomp.util.Helper.T;
 import static edu.illinois.cs.cogcomp.util.Helper.argmin;
 import static edu.illinois.cs.cogcomp.util.Helper.atLeast;
-import static edu.illinois.cs.cogcomp.util.Helper.exist;
 import static edu.illinois.cs.cogcomp.util.Helper.makePredicate;
 import static edu.illinois.cs.cogcomp.util.Helper.or;
 
@@ -70,12 +69,12 @@ public class Main {
             coverageConstraints =
             new ConstraintFunction<>(x ->
                                      {
-                                         FolFormula hasStationOnX = hasStation.on(T(x));
-//                                         List<FolFormula>
+                                         LogicFormula hasStationOnX = hasStation.on(T(x));
+//                                         List<LogicFormula>
 //                                             in_or =
 //                                             x.getAdjacent().stream().map(z -> hasStation.on(T(z)))
 //                                                 .collect(Collectors.toList());
-                                         FolFormula
+                                         LogicFormula
                                              hasStationOnAdjacents =
 //                                             or(in_or);
                                              atLeast(1, x.getAdjacent(),z -> hasStation.on(T(z)));

@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.inference.repr;
+package edu.illinois.cs.cogcomp.inference.ilp.representation;
 
 import java.util.List;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.inference.repr;
+package edu.illinois.cs.cogcomp.inference.ilp.representation;
 
 import gnu.trove.list.TDoubleList;
 import gnu.trove.list.linked.TDoubleLinkedList;

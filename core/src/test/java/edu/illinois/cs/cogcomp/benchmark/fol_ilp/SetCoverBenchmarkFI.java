@@ -18,7 +18,7 @@ import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblem;
 import edu.illinois.cs.cogcomp.inference.Objective;
 import edu.illinois.cs.cogcomp.inference.SetCover;
 import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 import static edu.illinois.cs.cogcomp.lbjava.examples.setCover.SetCoverSolver.solveByLBJ;
 import static edu.illinois.cs.cogcomp.util.Helper.Register;
@@ -58,12 +58,12 @@ public class SetCoverBenchmarkFI {
             coverageConstraints =
             new ConstraintFunction<>(x ->
                                      {
-                                         FolFormula hasStationOnX = hasStation.on(T(x));
-//                                         List<FolFormula>
+                                         LogicFormula hasStationOnX = hasStation.on(T(x));
+//                                         List<LogicFormula>
 //                                             in_or =
 //                                             x.getAdjacent().stream().map(z -> hasStation.on(T(z)))
 //                                                 .collect(Collectors.toList());
-                                         FolFormula
+                                         LogicFormula
                                              hasStationOnAdjacents =
 //                                             or(in_or);
                                              exist(x.getAdjacent(), z -> hasStation.on(T(z)));

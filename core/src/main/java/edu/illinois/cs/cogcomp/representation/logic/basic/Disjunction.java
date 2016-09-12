@@ -1,30 +1,29 @@
-package edu.illinois.cs.cogcomp.ir.fol.norm;
+package edu.illinois.cs.cogcomp.representation.logic.basic;
 
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
-
 /**
  * Created by haowu on 5/19/16.
  */
-public class Disjunction implements FolFormula {
-    private List<FolFormula> formulas;
+public class Disjunction implements LogicFormula {
+    private List<LogicFormula> formulas;
 
-    public Disjunction(List<FolFormula> formulas) {
+    public Disjunction(List<LogicFormula> formulas) {
         this.formulas = formulas;
     }
 
-    public Disjunction(FolFormula... formulas) {
+    public Disjunction(LogicFormula... formulas) {
         this.formulas = new ArrayList<>();
-        for (FolFormula f : formulas){
+        for (LogicFormula f : formulas){
             this.formulas.add(f);
         }
     }
-    public List<FolFormula> getFormulas() {
+    public List<LogicFormula> getFormulas() {
         return this.formulas;
     }
 
@@ -35,8 +34,8 @@ public class Disjunction implements FolFormula {
                 + ")");
     }
     @Override
-    public FolFormula toNnf() {
-        List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
+    public LogicFormula toNnf() {
+        List<LogicFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
             formulas.add(folFormula.toNnf());
         });

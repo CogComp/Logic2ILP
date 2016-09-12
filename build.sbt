@@ -33,7 +33,7 @@ lazy val core = (project in file("core")).
       "com.google.code.gson" % "gson" % "2.3.1",
       "net.sf.trove4j" % "trove4j" % "3.0.3",
       "org.apache.commons" % "commons-math3" % "3.6.1",
-      "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.24" % "test"
+      "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.13" % "test"
     )
   )
 

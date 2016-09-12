@@ -1,6 +1,7 @@
 package edu.illinois.cs.cogcomp.inference;
 
 
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Collection;
@@ -9,8 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.illinois.cs.cogcomp.infer.ilp.GurobiHook;
-import edu.illinois.cs.cogcomp.inference.repr.ILPProblem;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.inference.ilp.representation.ILPProblem;
 
 /**
  * Created by haowu on 5/12/16.
@@ -19,8 +19,8 @@ public class ILPBaseCCMProblem {
 
     private Map<String, CCMTerm> termMap;
     private Map<String, CCMPredicate> predicateMap;
-    private List<FolFormula> hardConstraints;
-    private List<Pair<FolFormula, Double>> softConstraints;
+    private List<LogicFormula> hardConstraints;
+    private List<Pair<LogicFormula, Double>> softConstraints;
     private List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
 
     private ILPProblem problem;
@@ -28,8 +28,8 @@ public class ILPBaseCCMProblem {
 
     public ILPBaseCCMProblem(
         List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
-        List<FolFormula> hardConstraints,
-        List<Pair<FolFormula, Double>> softConstraints) {
+        List<LogicFormula> hardConstraints,
+        List<Pair<LogicFormula, Double>> softConstraints) {
         this.objective = objective;
         this.hardConstraints = hardConstraints;
         this.softConstraints = softConstraints;
@@ -107,15 +107,15 @@ public class ILPBaseCCMProblem {
 
 
     public void debug() {
-        for (FolFormula f : this.hardConstraints) {
-            System.out.println(f);
+        for (LogicFormula f : this.hardConstraints) {
+            System.out.println(f.toString());
         }
         this.debug = true;
     }
 
     public void printConstraints() {
         System.out.println("Hard Constraints:");
-        for (FolFormula f : this.hardConstraints) {
+        for (LogicFormula f : this.hardConstraints) {
             System.out.println(f.toString());
         }
         System.out.println("Soft Constraints:");

@@ -1,24 +1,24 @@
-package edu.illinois.cs.cogcomp.ir.fol.norm;
+package edu.illinois.cs.cogcomp.representation.logic.basic;
 
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.*;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
+import edu.illinois.cs.cogcomp.representation.logic.extension.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
 
 /**
  * Created by haowu on 5/19/16.
  */
-public class Negation implements FolFormula {
-    private FolFormula formula;
+public class Negation implements LogicFormula {
+    private LogicFormula formula;
 
-    public Negation(FolFormula formula) {
+    public Negation(LogicFormula formula) {
             this.formula = formula;
     }
 
-    public FolFormula getFormula() {
+    public LogicFormula getFormula() {
         return this.formula;
     }
 
@@ -28,7 +28,7 @@ public class Negation implements FolFormula {
     }
 
     @Override
-    public FolFormula toNnf() {
+    public LogicFormula toNnf() {
         if (this.formula instanceof IndicatorVariable) {
             return this;
         }
@@ -38,7 +38,7 @@ public class Negation implements FolFormula {
         else if (this.formula instanceof Conjunction) {
             Conjunction conjunction = (Conjunction) this.formula;
 
-            List<FolFormula> formulas = new ArrayList<>(conjunction.getFormulas().size());
+            List<LogicFormula> formulas = new ArrayList<>(conjunction.getFormulas().size());
             conjunction.getFormulas().forEach(folFormula -> {
                 formulas.add(new Negation(folFormula).toNnf());
             });
@@ -48,7 +48,7 @@ public class Negation implements FolFormula {
         else if (this.formula instanceof Disjunction) {
             Disjunction disjunction = (Disjunction) this.formula;
 
-            List<FolFormula> formulas = new ArrayList<>(disjunction.getFormulas().size());
+            List<LogicFormula> formulas = new ArrayList<>(disjunction.getFormulas().size());
             disjunction.getFormulas().forEach(folFormula -> {
                 formulas.add(new Negation(folFormula).toNnf());
             });
@@ -62,26 +62,6 @@ public class Negation implements FolFormula {
         else if (this.formula instanceof AtMost) {
             AtMost atMost = (AtMost) this.formula;
             return new AtLeast(atMost.getK() + 1, atMost.getFormulas());
-        }
-        else if (this.formula instanceof Exist) {
-            Exist exist = (Exist) this.formula;
-
-            List<FolFormula> formulas = new ArrayList<>(exist.getFormulas().size());
-            exist.getFormulas().forEach(folFormula -> {
-                formulas.add(new Negation(folFormula).toNnf());
-            });
-
-            return new Forall(formulas);
-        }
-        else if (this.formula instanceof Forall) {
-            Forall forall = (Forall) this.formula;
-
-            List<FolFormula> formulas = new ArrayList<>(forall.getFormulas().size());
-            forall.getFormulas().forEach(folFormula -> {
-                formulas.add(new Negation(folFormula).toNnf());
-            });
-
-            return new Exist(formulas);
         }
         else if (this.formula instanceof ExactK) {
             ExactK exactK = (ExactK) this.formula;

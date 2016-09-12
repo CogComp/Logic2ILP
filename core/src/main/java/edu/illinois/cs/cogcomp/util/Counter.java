@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.inference;
+package edu.illinois.cs.cogcomp.util;
 
 /**
  * Created by binglin on 4/23/16.

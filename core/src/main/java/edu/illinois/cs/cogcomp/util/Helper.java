@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.util;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
-import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
+import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
+import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,13 +16,11 @@ import edu.illinois.cs.cogcomp.inference.CCMPredicate;
 import edu.illinois.cs.cogcomp.inference.CCMTerm;
 import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblemBuilder;
 import edu.illinois.cs.cogcomp.inference.Objective;
-import edu.illinois.cs.cogcomp.ir.fol.norm.Conjunction;
-import edu.illinois.cs.cogcomp.ir.fol.norm.Disjunction;
-import edu.illinois.cs.cogcomp.ir.fol.norm.Negation;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.AtLeast;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.AtMost;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.Exist;
-import edu.illinois.cs.cogcomp.ir.fol.quantifier.Forall;
+import edu.illinois.cs.cogcomp.representation.logic.basic.Conjunction;
+import edu.illinois.cs.cogcomp.representation.logic.basic.Disjunction;
+import edu.illinois.cs.cogcomp.representation.logic.basic.Negation;
+import edu.illinois.cs.cogcomp.representation.logic.extension.AtLeast;
+import edu.illinois.cs.cogcomp.representation.logic.extension.AtMost;
 
 /**
  * Created by haowu on 5/14/16.
@@ -55,24 +53,24 @@ public class Helper {
         return (CCMTerm<X>) f.apply(x);
     }
 
-    public static <X> FolFormula exist(Collection<X> colls, Function<X, FolFormula> fs){
-        return new Exist(colls.stream().map(fs).collect(Collectors.toList()));
+    public static <X> LogicFormula exist(Collection<X> colls, Function<X, LogicFormula> fs){
+        return new Disjunction(colls.stream().map(fs).collect(Collectors.toList()));
     }
 
-    public static <X> FolFormula atLeast(int k ,Collection<X> colls, Function<X, FolFormula> fs){
+    public static <X> LogicFormula atLeast(int k , Collection<X> colls, Function<X, LogicFormula> fs){
         return new AtLeast(k, colls.stream().map(fs).collect(Collectors.toList()));
     }
 
-    public static <X> FolFormula atMost(int k ,Collection<X> colls, Function<X, FolFormula> fs){
+    public static <X> LogicFormula atMost(int k , Collection<X> colls, Function<X, LogicFormula> fs){
         return new AtMost(k, colls.stream().map(fs).collect(Collectors.toList()));
     }
 
-    public static <X> FolFormula forall(Collection<X> colls, Function<X, FolFormula> fs){
-        return new Forall(colls.stream().map(fs).collect(Collectors.toList()));
+    public static <X> LogicFormula forall(Collection<X> colls, Function<X, LogicFormula> fs){
+        return new Conjunction(colls.stream().map(fs).collect(Collectors.toList()));
     }
 
 
-    public static FolFormula not(FolFormula f) {
+    public static LogicFormula not(LogicFormula f) {
         if (f instanceof IndicatorVariable){
             return new Negation((IndicatorVariable)f);
         }else{
@@ -80,23 +78,23 @@ public class Helper {
         }
     }
 
-    public static FolFormula and(FolFormula... fs) {
-        List<FolFormula> subs = new ArrayList<>();
+    public static LogicFormula and(LogicFormula... fs) {
+        List<LogicFormula> subs = new ArrayList<>();
         Collections.addAll(subs, fs);
         return new Conjunction(subs);
     }
 
-    public static FolFormula or(FolFormula... fs) {
-        List<FolFormula> subs = new ArrayList<>();
+    public static LogicFormula or(LogicFormula... fs) {
+        List<LogicFormula> subs = new ArrayList<>();
         Collections.addAll(subs, fs);
         return new Disjunction(subs);
     }
 
-    public static FolFormula or(List<FolFormula> fs) {
+    public static LogicFormula or(List<LogicFormula> fs) {
         return new Disjunction(fs);
     }
 
-    public static FolFormula imply(FolFormula p, FolFormula q) {
+    public static LogicFormula imply(LogicFormula p, LogicFormula q) {
         return or(not(p), q);
     }
 
@@ -127,8 +125,8 @@ public class Helper {
         return builder;
     }
 
-    public static <X> List<FolFormula> apply(List<X> coll,
-                                             Function<X, List<FolFormula>> f) {
+    public static <X> List<LogicFormula> apply(List<X> coll,
+                                               Function<X, List<LogicFormula>> f) {
         return coll.stream().flatMap(x -> f.apply(x).stream()).collect(Collectors.toList());
     }
 

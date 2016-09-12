@@ -31,7 +31,8 @@ public class CCMLogicSolver {
 
     ILPProblem problem;
     private final List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
-    private final List<FolFormula> constraints;
+    private final List<FolFormula> hardConstraints;
+    private final List<Pair<FolFormula, Double>> softConstraints;
     private final Counter variableCounter;
     private final Counter constraintCounter;
     private final Map<String, ? extends CCMPredicate> predicateMap;
@@ -41,11 +42,13 @@ public class CCMLogicSolver {
 
     public CCMLogicSolver(
         List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
-        List<FolFormula> constraints,
+        List<FolFormula> hardConstraints,
+        List<Pair<FolFormula, Double>> softConstraints,
         Map<String, ? extends CCMPredicate> predicateMap,
         Map<String, ? extends CCMTerm> termMap) {
         this.objective = objective;
-        this.constraints = constraints;
+        this.hardConstraints = hardConstraints;
+        this.softConstraints = softConstraints;
         this.variableCounter = new Counter("NV$");
         this.constraintCounter = new Counter("C$");
         this.predicateMap = predicateMap;
@@ -76,11 +79,19 @@ public class CCMLogicSolver {
 
         problem.setMaximize(true);
 
-        constraints.forEach(folFormula -> {
+        // Set hardConstraints
+        hardConstraints.forEach(folFormula -> {
+//            translate(folFormula.toNnf(), null);
             translate(folFormula, null);
         });
 
-
+        // Set softConstraints
+        softConstraints.forEach(constraintPenaltyPair -> {
+            variableCounter.increment();
+            problem.introduceVariableToObjective(variableCounter.toString(),
+                                                 -constraintPenaltyPair.getRight());
+            translate(constraintPenaltyPair.getLeft(), variableCounter.toString());
+        });
     }
 
     public void solve(ILPProblem ilpProblem) {

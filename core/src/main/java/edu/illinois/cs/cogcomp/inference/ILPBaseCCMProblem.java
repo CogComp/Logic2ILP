@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.illinois.cs.cogcomp.infer.ilp.GurobiHook;
-import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
 import edu.illinois.cs.cogcomp.inference.repr.ILPProblem;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
@@ -20,7 +19,8 @@ public class ILPBaseCCMProblem {
 
     private Map<String, CCMTerm> termMap;
     private Map<String, CCMPredicate> predicateMap;
-    private List<FolFormula> constraints;
+    private List<FolFormula> hardConstraints;
+    private List<Pair<FolFormula, Double>> softConstraints;
     private List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
 
     private ILPProblem problem;
@@ -28,9 +28,11 @@ public class ILPBaseCCMProblem {
 
     public ILPBaseCCMProblem(
         List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
-        List<FolFormula> constraints) {
+        List<FolFormula> hardConstraints,
+        List<Pair<FolFormula, Double>> softConstraints) {
         this.objective = objective;
-        this.constraints = constraints;
+        this.hardConstraints = hardConstraints;
+        this.softConstraints = softConstraints;
 
         this.predicateMap = new HashMap<>();
         this.termMap = new HashMap<>();
@@ -60,7 +62,7 @@ public class ILPBaseCCMProblem {
 
 
     public double solve() {
-        CCMLogicSolver ccmSolver = new CCMLogicSolver(objective, constraints, predicateMap,
+        CCMLogicSolver ccmSolver = new CCMLogicSolver(objective, hardConstraints, softConstraints, predicateMap,
                                                       termMap);
 
         this.problem = new ILPProblem(new GurobiHook());
@@ -105,15 +107,21 @@ public class ILPBaseCCMProblem {
 
 
     public void debug() {
-        for (FolFormula f : this.constraints) {
+        for (FolFormula f : this.hardConstraints) {
             System.out.println(f);
         }
         this.debug = true;
     }
 
     public void printConstraints() {
-        for (FolFormula f : this.constraints) {
+        System.out.println("Hard Constraints:");
+        for (FolFormula f : this.hardConstraints) {
             System.out.println(f.toString());
+        }
+        System.out.println("Soft Constraints:");
+        for (Pair p : this.softConstraints) {
+            System.out.println(p.getLeft().toString());
+            System.out.println(p.getRight().toString());
         }
     }
 }

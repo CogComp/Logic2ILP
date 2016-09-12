@@ -21,14 +21,25 @@ eval_statement
     | Identifier Identifier '?'
     ;
 
+/**
+Defining terms.
+**/
+
 term_def
     : TERM termSeq    
     ;
 
 termSeq
-    : Identifier (',' Identifier)*   // term n1,n2,n3,n4 ; 
-    | Identifier '[' INT '-' INT ']' // term n[1-4] ;
+    : termName (',' termName )*   // term n1,n2,n3,n4 ;
+    | termName '[' INT '-' INT ']' // term n[1-4] ;
     ;
+
+termName : Identifier;
+
+/**
+End Defining terms.
+**/
+
 
 relation_dec
     : RELATION Identifier

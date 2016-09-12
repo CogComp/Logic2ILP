@@ -4,10 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 /**
@@ -31,16 +29,6 @@ public class Disjunction implements FolFormula {
     }
 
     @Override
-    public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        for (FolFormula f : this.formulas){
-            if (f.eval(assignment)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public String toString() {
         return ("(" + StringUtils
             .join(this.formulas.stream().map(Object::toString).collect(Collectors.toList()), " | ")
@@ -54,11 +42,6 @@ public class Disjunction implements FolFormula {
         });
 
         return new Disjunction(formulas);
-    }
-
-    @Override
-    public FolFormula negate() {
-        return new Conjunction(formulas.stream().map(f -> f.negate()).collect(Collectors.toList()));
     }
 
 }

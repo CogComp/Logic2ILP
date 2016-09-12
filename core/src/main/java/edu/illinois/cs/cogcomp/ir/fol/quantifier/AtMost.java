@@ -2,9 +2,7 @@ package edu.illinois.cs.cogcomp.ir.fol.quantifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 /**
@@ -45,28 +43,6 @@ public class AtMost implements FolFormula {
     }
 
     @Override
-    public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        int counter = 0;
-        int unknown = this.formulas.size();
-
-        for (FolFormula f : this.formulas) {
-            if (unknown + counter <= k){
-                // if all unknown eval to True, we still won't reach k, return true;
-                return true;
-            }
-
-            if (f.eval(assignment)) {
-                counter ++;
-                if (counter > k) {
-                    return false;
-                }
-            }
-            unknown --;
-        }
-        return true;
-    }
-
-    @Override
     public FolFormula toNnf() {
         List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
@@ -74,11 +50,6 @@ public class AtMost implements FolFormula {
         });
 
         return new AtMost(this.k, formulas);
-    }
-
-    @Override
-    public FolFormula negate() {
-        throw new RuntimeException("not implemented.");
     }
 
 }

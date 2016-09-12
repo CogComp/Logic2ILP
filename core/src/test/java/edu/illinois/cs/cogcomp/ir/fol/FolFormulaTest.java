@@ -27,18 +27,6 @@ public class FolFormulaTest {
 
         assignment.put(t,true);
         assignment.put(f,false);
-
-
-        Assert.assertEquals(true, new Conjunction(t,t,t).eval(assignment));
-        Assert.assertEquals(false, new Conjunction(t,t,f).eval(assignment));
-        Assert.assertEquals(false, new Conjunction(f,f,f).eval(assignment));
-
-        Assert.assertEquals(true, new Disjunction(t, t, f).eval(assignment));
-        Assert.assertEquals(true, new Disjunction(t, f, f).eval(assignment));
-        Assert.assertEquals(false, new Disjunction(f, f, f).eval(assignment));
-
-        Assert.assertEquals(false, new Negation(t).eval(assignment));
-        Assert.assertEquals(true, new Negation(f).eval(assignment));
     }
 
 }

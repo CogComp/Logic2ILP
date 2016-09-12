@@ -3,6 +3,7 @@ package edu.illinois.cs.cogcomp.inference;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 import org.apache.commons.lang3.tuple.Pair;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -15,6 +16,10 @@ public class ILPBaseCCMProblemBuilder {
     private List<FolFormula> hardConstraints;
     private List<Pair<FolFormula, Double>> softConstraints;
 
+    public ILPBaseCCMProblemBuilder subjectTo(
+        List<FolFormula> hardConstraints) {
+        return subjectTo(hardConstraints,new ArrayList<>());
+    }
     public ILPBaseCCMProblemBuilder subjectTo(
         List<FolFormula> hardConstraints,
         List<Pair<FolFormula, Double>> softConstraints) {

@@ -4,10 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 /**
@@ -37,16 +35,6 @@ public class Conjunction implements FolFormula {
     }
 
     @Override
-    public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        for (FolFormula f : this.formulas) {
-            if (!f.eval(assignment)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
     public FolFormula toNnf() {
         List<FolFormula> formulas = new ArrayList<>(this.formulas.size());
         this.formulas.forEach(folFormula -> {
@@ -54,11 +42,6 @@ public class Conjunction implements FolFormula {
         });
 
         return new Conjunction(formulas);
-    }
-
-    @Override
-    public FolFormula negate() {
-        return new Disjunction(formulas.stream().map(f -> f.negate()).collect(Collectors.toList()));
     }
 
     @Override

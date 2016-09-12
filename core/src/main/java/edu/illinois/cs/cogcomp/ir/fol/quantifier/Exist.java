@@ -4,10 +4,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
 
 /**
@@ -31,15 +29,6 @@ public class Exist implements FolFormula {
     public List<FolFormula> getFormulas() {
         return this.formulas;
     }
-    @Override
-    public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        for (FolFormula f : this.formulas){
-            if (f.eval(assignment)){
-                return true;
-            }
-        }
-        return false;
-    }
 
     @Override
     public FolFormula toNnf() {
@@ -49,11 +38,6 @@ public class Exist implements FolFormula {
         });
 
         return new Exist(formulas);
-    }
-
-    @Override
-    public FolFormula negate() {
-        throw new RuntimeException("not implemented.");
     }
 
     @Override

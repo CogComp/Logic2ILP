@@ -4,7 +4,6 @@ import edu.illinois.cs.cogcomp.ir.fol.quantifier.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.illinois.cs.cogcomp.ir.IndicatorVariable;
 import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
@@ -21,11 +20,6 @@ public class Negation implements FolFormula {
 
     public FolFormula getFormula() {
         return this.formula;
-    }
-
-    @Override
-    public boolean eval(Map<IndicatorVariable, Boolean> assignment) {
-        return !this.formula.eval(assignment);
     }
 
     @Override
@@ -104,8 +98,4 @@ public class Negation implements FolFormula {
         }
     }
 
-    @Override
-    public FolFormula negate() {
-        throw new RuntimeException("not implemented.");
-    }
 }

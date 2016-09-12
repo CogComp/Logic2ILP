@@ -74,21 +74,9 @@ public class CCMLogicSolver {
 
         }
 
-//        objective.forEach(pair -> {
-//            CCMPredicate predicate = pair.getKey();
-//            Collection<? extends CCMTerm> terms = pair.getValue();
-//
-//            terms.forEach(term -> {
-//                linear.add(predicate.getScore(term), predicate.getID() + "$" + term.getID());
-//            });
-//        });
-
-//        problem.setObjective(linear, OptType.MAX);
         problem.setMaximize(true);
 
-        // Set constraints
         constraints.forEach(folFormula -> {
-//            translate(folFormula.toNnf(), null);
             translate(folFormula, null);
         });
 

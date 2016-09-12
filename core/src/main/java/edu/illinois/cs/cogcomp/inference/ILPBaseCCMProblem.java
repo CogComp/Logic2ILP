@@ -18,13 +18,6 @@ import edu.illinois.cs.cogcomp.ir.fol.FolFormula;
  */
 public class ILPBaseCCMProblem {
 
-//    private static final SolverFactory factory = new SolverFactoryGurobi(); // use lp_solve
-//
-//    static {
-//        factory.setParameter(Solver.VERBOSE, 0);
-//        factory.setParameter(Solver.TIMEOUT, 100); // set timeout to 100 seconds
-//    }
-
     private Map<String, CCMTerm> termMap;
     private Map<String, CCMPredicate> predicateMap;
     private List<FolFormula> constraints;

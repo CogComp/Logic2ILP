@@ -30,7 +30,7 @@ public abstract class CCMPredicate<X> {
 
     public abstract double getScore(CCMTerm<X> term);
 
-    public String _(CCMTerm t) {
+    public String makeIndiactor(CCMTerm t) {
         return getID() + "$" + t.getID();
     }
 
@@ -38,11 +38,4 @@ public abstract class CCMPredicate<X> {
         return new IndicatorVariable(this.getID(), t.getID());
     }
 
-//    private static Constant getConstant(CCMTerm t){
-//        return new Constant(t.getID());
-//    }
-//
-//    private static Predicate getPredicate(CCMPredicate p){
-//        return new Predicate(p.getID(),1);
-//    }
 }

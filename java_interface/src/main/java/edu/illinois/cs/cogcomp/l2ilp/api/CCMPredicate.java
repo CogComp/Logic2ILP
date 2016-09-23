@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.l2ilp.inference;
+package edu.illinois.cs.cogcomp.l2ilp.api;
 
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.ILPProblem;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanVariable;

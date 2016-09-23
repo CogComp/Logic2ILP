@@ -4,7 +4,6 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.ILPProblem;
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.Linear;
@@ -33,24 +32,18 @@ public class CCMLogicSolver {
     private final List<Pair<LogicFormula, Double>> softConstraints;
     private final Counter variableCounter;
     private final Counter constraintCounter;
-    private final Map<String, ? extends CCMPredicate> predicateMap;
-    private final Map<String, ? extends CCMTerm> termMap;
 
     // Stuff for Cogcomp Inference package.
 
     public CCMLogicSolver(
         List<Pair<BooleanVariable, Double>> objective,
         List<LogicFormula> hardConstraints,
-        List<Pair<LogicFormula, Double>> softConstraints,
-        Map<String, ? extends CCMPredicate> predicateMap,
-        Map<String, ? extends CCMTerm> termMap) {
+        List<Pair<LogicFormula, Double>> softConstraints) {
         this.objective = objective;
         this.hardConstraints = hardConstraints;
         this.softConstraints = softConstraints;
         this.variableCounter = new Counter("NV$");
         this.constraintCounter = new Counter("C$");
-        this.predicateMap = predicateMap;
-        this.termMap = termMap;
         problem = null;
     }
 
@@ -101,9 +94,6 @@ public class CCMLogicSolver {
             e.printStackTrace();
         }
 
-        predicateMap.forEach((s, ccmPredicate) -> {
-            ccmPredicate.setResult(ilpProblem);
-        });
     }
 
     private void addConstraint(Linear linear, Operator operator, double rhs) {

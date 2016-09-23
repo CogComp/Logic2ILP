@@ -1,6 +1,7 @@
-package edu.illinois.cs.cogcomp.l2ilp.inference;
+package edu.illinois.cs.cogcomp.l2ilp.api;
 
 
+import edu.illinois.cs.cogcomp.l2ilp.inference.CCMLogicSolver;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -62,8 +63,8 @@ public class ILPBaseCCMProblem {
 
 
     public double solve() {
-        CCMLogicSolver ccmSolver = new CCMLogicSolver(objective, hardConstraints, softConstraints, predicateMap,
-                                                      termMap);
+        CCMLogicSolver
+            ccmSolver = new CCMLogicSolver(objective, hardConstraints, softConstraints);
 
         this.problem = new ILPProblem(new GurobiHook());
 

@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.l2ilp.inference;
+package edu.illinois.cs.cogcomp.l2ilp.api;
 
 /**
  * Created by haowu on 4/23/16.

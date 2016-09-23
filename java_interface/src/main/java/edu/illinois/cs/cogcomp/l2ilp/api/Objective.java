@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.l2ilp.inference;
+package edu.illinois.cs.cogcomp.l2ilp.api;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;

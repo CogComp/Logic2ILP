@@ -1,4 +1,4 @@
-package edu.illinois.cs.cogcomp.l2ilp.inference;
+package edu.illinois.cs.cogcomp.l2ilp.api;
 
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 import org.apache.commons.lang3.tuple.Pair;

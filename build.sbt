@@ -32,8 +32,7 @@ lazy val core = (project in file("core")).
       "edu.illinois.cs.cogcomp" % "illinois-inference" % "0.6.0",
       "com.google.code.gson" % "gson" % "2.3.1",
       "net.sf.trove4j" % "trove4j" % "3.0.3",
-      "org.apache.commons" % "commons-math3" % "3.6.1",
-      "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.13" % "test"
+      "org.apache.commons" % "commons-math3" % "3.6.1"
     )
   )
 
@@ -41,14 +40,21 @@ lazy val core = (project in file("core")).
 lazy val core_lang = (project in file("core-lang")).dependsOn(core).
   settings(commonSettings: _*).
   settings(
-//    name := "fol_ilp_lang"
-
     libraryDependencies ++= Seq(
       "org.antlr" % "antlr4-runtime" % "4.5.3"
     )
   )
 
+lazy val java_lang = (project in file("java_interface")).dependsOn(core).
+  settings(commonSettings: _*).
+  settings(
+    libraryDependencies ++= Seq(
+      "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.13" % "test"
+    )
+  )
+
+
 lazy val main = project.in(file("."))
-  .aggregate(core, core_lang)
+  .aggregate(core, core_lang, java_lang)
 
 

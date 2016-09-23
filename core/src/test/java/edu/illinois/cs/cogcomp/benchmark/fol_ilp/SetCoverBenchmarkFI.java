@@ -13,20 +13,20 @@ import java.util.stream.Collectors;
 
 import edu.illinois.cs.cogcomp.benchmark.BenchMarkRecord;
 import edu.illinois.cs.cogcomp.benchmark.task.SetCoverTask;
-import edu.illinois.cs.cogcomp.inference.CCMPredicate;
-import edu.illinois.cs.cogcomp.inference.ILPBaseCCMProblem;
-import edu.illinois.cs.cogcomp.inference.Objective;
-import edu.illinois.cs.cogcomp.inference.SetCover;
-import edu.illinois.cs.cogcomp.inference.constraint.ConstraintFunction;
-import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
+import edu.illinois.cs.cogcomp.l2ilp.inference.CCMPredicate;
+import edu.illinois.cs.cogcomp.l2ilp.inference.ILPBaseCCMProblem;
+import edu.illinois.cs.cogcomp.l2ilp.inference.Objective;
+import edu.illinois.cs.cogcomp.l2ilp.inference.SetCover;
+import edu.illinois.cs.cogcomp.l2ilp.inference.constraint.ConstraintFunction;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 
 import static edu.illinois.cs.cogcomp.lbjava.examples.setCover.SetCoverSolver.solveByLBJ;
-import static edu.illinois.cs.cogcomp.util.Helper.Register;
-import static edu.illinois.cs.cogcomp.util.Helper.T;
-import static edu.illinois.cs.cogcomp.util.Helper.argmin;
-import static edu.illinois.cs.cogcomp.util.Helper.exist;
-import static edu.illinois.cs.cogcomp.util.Helper.makePredicate;
-import static edu.illinois.cs.cogcomp.util.Helper.or;
+import static edu.illinois.cs.cogcomp.l2ilp.util.Helper.Register;
+import static edu.illinois.cs.cogcomp.l2ilp.util.Helper.T;
+import static edu.illinois.cs.cogcomp.l2ilp.util.Helper.argmin;
+import static edu.illinois.cs.cogcomp.l2ilp.util.Helper.exist;
+import static edu.illinois.cs.cogcomp.l2ilp.util.Helper.makePredicate;
+import static edu.illinois.cs.cogcomp.l2ilp.util.Helper.or;
 
 /**
  * Created by haowu on 8/26/16.

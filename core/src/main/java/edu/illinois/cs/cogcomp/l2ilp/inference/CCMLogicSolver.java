@@ -1,11 +1,8 @@
 package edu.illinois.cs.cogcomp.l2ilp.inference;
 
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
-import edu.illinois.cs.cogcomp.l2ilp.util.Counter;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +10,7 @@ import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.ILPProblem;
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.Linear;
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.Operator;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanVariable;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Conjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Disjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
@@ -20,6 +18,7 @@ import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeast;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMost;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.ExactK;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.NotExactK;
+import edu.illinois.cs.cogcomp.l2ilp.util.Counter;
 
 
 /**
@@ -29,7 +28,7 @@ public class CCMLogicSolver {
 
 
     ILPProblem problem;
-    private final List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective;
+    private final List<Pair<BooleanVariable, Double>> objective;
     private final List<LogicFormula> hardConstraints;
     private final List<Pair<LogicFormula, Double>> softConstraints;
     private final Counter variableCounter;
@@ -40,7 +39,7 @@ public class CCMLogicSolver {
     // Stuff for Cogcomp Inference package.
 
     public CCMLogicSolver(
-        List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objective,
+        List<Pair<BooleanVariable, Double>> objective,
         List<LogicFormula> hardConstraints,
         List<Pair<LogicFormula, Double>> softConstraints,
         Map<String, ? extends CCMPredicate> predicateMap,
@@ -63,34 +62,32 @@ public class CCMLogicSolver {
         // Set objective function
         this.problem = problem;
 
-        for (Pair<CCMPredicate, Collection<? extends CCMTerm>> pair : objective) {
-            CCMPredicate predicate = pair.getKey();
-            Collection<? extends CCMTerm> terms = pair.getValue();
-
-            for (CCMTerm term : terms) {
-                double weight = predicate.getScore(term);
-                String name = predicate.getID() + "$" + term.getID();
-                int idx = problem.introduceVariableToObjective(name, weight);
-            }
-
-
+        for (Pair<BooleanVariable, Double> pair : objective) {
+            BooleanVariable var = pair.getKey();
+            double weight = pair.getValue();
+            int idx = problem.introduceVariableToObjective(var.getId(), weight);
         }
 
         problem.setMaximize(true);
 
         // Set hardConstraints
-        hardConstraints.forEach(folFormula -> {
+        hardConstraints.forEach(folFormula ->
+                                {
 //            translate(folFormula.toNnf(), null);
-            translate(folFormula, null);
-        });
+                                    translate(folFormula, null);
+                                });
 
         // Set softConstraints
-        softConstraints.forEach(constraintPenaltyPair -> {
-            variableCounter.increment();
-            problem.introduceVariableToObjective(variableCounter.toString(),
-                                                 -constraintPenaltyPair.getRight());
-            translate(constraintPenaltyPair.getLeft(), variableCounter.toString());
-        });
+        softConstraints.forEach(constraintPenaltyPair ->
+
+                                {
+                                    variableCounter.increment();
+                                    problem.introduceVariableToObjective(variableCounter.toString(),
+                                                                         -constraintPenaltyPair
+                                                                             .getRight());
+                                    translate(constraintPenaltyPair.getLeft(),
+                                              variableCounter.toString());
+                                });
     }
 
     public void solve(ILPProblem ilpProblem) {
@@ -103,8 +100,6 @@ public class CCMLogicSolver {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-//        Result result =
 
         predicateMap.forEach((s, ccmPredicate) -> {
             ccmPredicate.setResult(ilpProblem);
@@ -152,14 +147,11 @@ public class CCMLogicSolver {
 
     private void handleFormulaChildren(LogicFormula logicFormula, Linear... linears) {
         if (logicFormula instanceof BooleanVariable) {
-            CCMPredicate
-                predicate =
-                predicateMap.get(((BooleanVariable) logicFormula).predicateId());
-            CCMTerm term = termMap.get(((BooleanVariable) logicFormula).termId());
+            BooleanVariable var = (BooleanVariable) logicFormula;
 
-            addIndicatorConstraint(predicate.getID() + "$" + term.getID());
+            addIndicatorConstraint(var.getId());
             for (Linear l : linears) {
-                l.add(1, predicate.getID() + "$" + term.getID());
+                l.add(1, var.getId());
             }
         } else {
             variableCounter.increment();
@@ -234,13 +226,10 @@ public class CCMLogicSolver {
 
                 disjunction.getFormulas().forEach(folFormula -> {
                     if (folFormula instanceof BooleanVariable) {
-                        CCMPredicate
-                            predicate =
-                            predicateMap.get(((BooleanVariable) folFormula).predicateId());
-                        CCMTerm term = termMap.get(((BooleanVariable) folFormula).termId());
+                        BooleanVariable var = (BooleanVariable) folFormula;
 
-                        addIndicatorConstraint(predicate.getID() + "$" + term.getID());
-                        l1.add(1, predicate.getID() + "$" + term.getID());
+                        addIndicatorConstraint(var.getId());
+                        l1.add(1, var.getId());
                     } else {
                         variableCounter.increment();
                         addIndicatorConstraint(variableCounter.toString());
@@ -402,27 +391,21 @@ public class CCMLogicSolver {
 
             translateDisjunction(new Disjunction(formulas), inheritedName);
         } else if (formula instanceof BooleanVariable) {
-            BooleanVariable booleanVariable = (BooleanVariable) formula;
+            BooleanVariable var = (BooleanVariable) formula;
 
-            CCMPredicate predicate = predicateMap.get(booleanVariable.predicateId());
-            CCMTerm term = termMap.get(booleanVariable.termId());
-
-            addIndicatorConstraint(predicate.getID() + "$" + term.getID());
+            addIndicatorConstraint(var.getId());
             if (inheritedName != null) {
-                addEquivalenceConstraint(inheritedName, predicate.getID() + "$" + term.getID());
+                addEquivalenceConstraint(inheritedName, var.getId());
             }
         } else if (formula instanceof Negation) {
             Negation negation = (Negation) formula;
 
             if (negation.getFormula() instanceof BooleanVariable) {
-                BooleanVariable booleanVariable = (BooleanVariable) negation.getFormula();
+                BooleanVariable var = (BooleanVariable) negation.getFormula();
 
-                CCMPredicate predicate = predicateMap.get(booleanVariable.predicateId());
-                CCMTerm term = termMap.get(booleanVariable.termId());
-
-                addIndicatorConstraint(predicate.getID() + "$" + term.getID());
+                addIndicatorConstraint(var.getId());
                 if (inheritedName != null) {
-                    addNegationConstraint(inheritedName, predicate.getID() + "$" + term.getID());
+                    addNegationConstraint(inheritedName, var.getId());
                 }
             } else {
                 throw new RuntimeException("NNF failed or is not called before translation.");

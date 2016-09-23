@@ -53,4 +53,8 @@ public class BooleanVariable implements LogicFormula {
     public int hashCode() {
         return id.hashCode();
     }
+
+    public String getId() {
+        return id;
+    }
 }

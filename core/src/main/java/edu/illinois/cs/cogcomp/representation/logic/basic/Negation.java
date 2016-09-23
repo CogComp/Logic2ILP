@@ -6,7 +6,7 @@ import edu.illinois.cs.cogcomp.representation.logic.extension.*;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
+import edu.illinois.cs.cogcomp.representation.logic.BooleanVariable;
 
 /**
  * Created by haowu on 5/19/16.
@@ -29,7 +29,7 @@ public class Negation implements LogicFormula {
 
     @Override
     public LogicFormula toNnf() {
-        if (this.formula instanceof IndicatorVariable) {
+        if (this.formula instanceof BooleanVariable) {
             return this;
         }
         else if (this.formula instanceof Negation) {

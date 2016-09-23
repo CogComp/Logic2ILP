@@ -12,7 +12,7 @@ import java.util.Map;
 import edu.illinois.cs.cogcomp.inference.ilp.representation.ILPProblem;
 import edu.illinois.cs.cogcomp.inference.ilp.representation.Linear;
 import edu.illinois.cs.cogcomp.inference.ilp.representation.Operator;
-import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
+import edu.illinois.cs.cogcomp.representation.logic.BooleanVariable;
 import edu.illinois.cs.cogcomp.representation.logic.basic.Conjunction;
 import edu.illinois.cs.cogcomp.representation.logic.basic.Disjunction;
 import edu.illinois.cs.cogcomp.representation.logic.basic.Negation;
@@ -151,11 +151,11 @@ public class CCMLogicSolver {
     }
 
     private void handleFormulaChildren(LogicFormula logicFormula, Linear... linears) {
-        if (logicFormula instanceof IndicatorVariable) {
+        if (logicFormula instanceof BooleanVariable) {
             CCMPredicate
                 predicate =
-                predicateMap.get(((IndicatorVariable) logicFormula).predicateId());
-            CCMTerm term = termMap.get(((IndicatorVariable) logicFormula).termId());
+                predicateMap.get(((BooleanVariable) logicFormula).predicateId());
+            CCMTerm term = termMap.get(((BooleanVariable) logicFormula).termId());
 
             addIndicatorConstraint(predicate.getID() + "$" + term.getID());
             for (Linear l : linears) {
@@ -233,11 +233,11 @@ public class CCMLogicSolver {
                 Linear l1 = new Linear();
 
                 disjunction.getFormulas().forEach(folFormula -> {
-                    if (folFormula instanceof IndicatorVariable) {
+                    if (folFormula instanceof BooleanVariable) {
                         CCMPredicate
                             predicate =
-                            predicateMap.get(((IndicatorVariable) folFormula).predicateId());
-                        CCMTerm term = termMap.get(((IndicatorVariable) folFormula).termId());
+                            predicateMap.get(((BooleanVariable) folFormula).predicateId());
+                        CCMTerm term = termMap.get(((BooleanVariable) folFormula).termId());
 
                         addIndicatorConstraint(predicate.getID() + "$" + term.getID());
                         l1.add(1, predicate.getID() + "$" + term.getID());
@@ -401,11 +401,11 @@ public class CCMLogicSolver {
             formulas.add(new AtMost(notExactK.getK() - 1, notExactK.getFormulas()));
 
             translateDisjunction(new Disjunction(formulas), inheritedName);
-        } else if (formula instanceof IndicatorVariable) {
-            IndicatorVariable indicatorVariable = (IndicatorVariable) formula;
+        } else if (formula instanceof BooleanVariable) {
+            BooleanVariable booleanVariable = (BooleanVariable) formula;
 
-            CCMPredicate predicate = predicateMap.get(indicatorVariable.predicateId());
-            CCMTerm term = termMap.get(indicatorVariable.termId());
+            CCMPredicate predicate = predicateMap.get(booleanVariable.predicateId());
+            CCMTerm term = termMap.get(booleanVariable.termId());
 
             addIndicatorConstraint(predicate.getID() + "$" + term.getID());
             if (inheritedName != null) {
@@ -414,11 +414,11 @@ public class CCMLogicSolver {
         } else if (formula instanceof Negation) {
             Negation negation = (Negation) formula;
 
-            if (negation.getFormula() instanceof IndicatorVariable) {
-                IndicatorVariable indicatorVariable = (IndicatorVariable) negation.getFormula();
+            if (negation.getFormula() instanceof BooleanVariable) {
+                BooleanVariable booleanVariable = (BooleanVariable) negation.getFormula();
 
-                CCMPredicate predicate = predicateMap.get(indicatorVariable.predicateId());
-                CCMTerm term = termMap.get(indicatorVariable.termId());
+                CCMPredicate predicate = predicateMap.get(booleanVariable.predicateId());
+                CCMTerm term = termMap.get(booleanVariable.termId());
 
                 addIndicatorConstraint(predicate.getID() + "$" + term.getID());
                 if (inheritedName != null) {

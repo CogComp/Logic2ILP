@@ -1,7 +1,7 @@
 package edu.illinois.cs.cogcomp.inference;
 
 import edu.illinois.cs.cogcomp.inference.ilp.representation.ILPProblem;
-import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
+import edu.illinois.cs.cogcomp.representation.logic.BooleanVariable;
 
 /**
  * Created by haowu on 4/23/16.
@@ -31,8 +31,8 @@ public abstract class CCMPredicate<X> {
         return getID() + "$" + t.getID();
     }
 
-    public IndicatorVariable on(CCMTerm t) {
-        return new IndicatorVariable(this.getID(), t.getID());
+    public BooleanVariable on(CCMTerm t) {
+        return new BooleanVariable(this.getID(), t.getID());
     }
 
 }

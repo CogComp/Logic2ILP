@@ -1,6 +1,6 @@
 package edu.illinois.cs.cogcomp.util;
 
-import edu.illinois.cs.cogcomp.representation.IndicatorVariable;
+import edu.illinois.cs.cogcomp.representation.logic.BooleanVariable;
 import edu.illinois.cs.cogcomp.representation.logic.LogicFormula;
 
 import java.util.ArrayList;
@@ -71,8 +71,8 @@ public class Helper {
 
 
     public static LogicFormula not(LogicFormula f) {
-        if (f instanceof IndicatorVariable){
-            return new Negation((IndicatorVariable)f);
+        if (f instanceof BooleanVariable){
+            return new Negation((BooleanVariable)f);
         }else{
             return null;
         }

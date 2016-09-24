@@ -1,5 +1,7 @@
 package edu.illinois.cs.cogcomp.l2ilp.inference;
 
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeastK;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMostK;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -13,8 +15,6 @@ import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Conjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Disjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeast;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMost;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.ExactK;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.NotExactK;
 import edu.illinois.cs.cogcomp.l2ilp.util.Counter;
@@ -284,8 +284,8 @@ public class CCMLogicSolver {
         }
     }
 
-    private void translateAtLeast(AtLeast atLeast, String inheritedName) {
-        if (atLeast.getK() > atLeast.getFormulas().size()) {
+    private void translateAtLeast(AtLeastK atLeastK, String inheritedName) {
+        if (atLeastK.getK() > atLeastK.getFormulas().size()) {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
                 addConstraint(l1, Operator.EQ, 1);
@@ -298,29 +298,29 @@ public class CCMLogicSolver {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 
-                for (LogicFormula logicFormula : atLeast.getFormulas()) {
+                for (LogicFormula logicFormula : atLeastK.getFormulas()) {
                     handleFormulaChildren(logicFormula, l1);
                 }
 
-                addConstraint(l1, Operator.GE, atLeast.getK());
+                addConstraint(l1, Operator.GE, atLeastK.getK());
             } else {
                 Linear l1 = new Linear();
                 Linear l2 = new Linear();
-                l1.add(-atLeast.getK(), inheritedName);
-                l2.add(-atLeast.getFormulas().size(), inheritedName);
+                l1.add(-atLeastK.getK(), inheritedName);
+                l2.add(-atLeastK.getFormulas().size(), inheritedName);
 
-                for (LogicFormula logicFormula : atLeast.getFormulas()) {
+                for (LogicFormula logicFormula : atLeastK.getFormulas()) {
                     handleFormulaChildren(logicFormula, l1, l2);
                 }
 
                 addConstraint(l1, Operator.GE, 0);
-                addConstraint(l2, Operator.LE, atLeast.getK() - 1);
+                addConstraint(l2, Operator.LE, atLeastK.getK() - 1);
             }
         }
     }
 
-    private void translateAtMost(AtMost atMost, String inheritedName) {
-        if (atMost.getK() >= atMost.getFormulas().size()) {
+    private void translateAtMost(AtMostK atMostK, String inheritedName) {
+        if (atMostK.getK() >= atMostK.getFormulas().size()) {
             if (inheritedName != null) {
                 Linear l1 = new Linear();
                 l1.add(1, inheritedName);
@@ -330,23 +330,23 @@ public class CCMLogicSolver {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 
-                for (LogicFormula logicFormula : atMost.getFormulas()) {
+                for (LogicFormula logicFormula : atMostK.getFormulas()) {
                     handleFormulaChildren(logicFormula, l1);
                 }
 
-                addConstraint(l1, Operator.LE, atMost.getK());
+                addConstraint(l1, Operator.LE, atMostK.getK());
             } else {
                 Linear l1 = new Linear();
                 Linear l2 = new Linear();
-                l1.add(atMost.getFormulas().size() - atMost.getK(), inheritedName);
-                l2.add(atMost.getFormulas().size(), inheritedName);
+                l1.add(atMostK.getFormulas().size() - atMostK.getK(), inheritedName);
+                l2.add(atMostK.getFormulas().size(), inheritedName);
 
-                for (LogicFormula logicFormula : atMost.getFormulas()) {
+                for (LogicFormula logicFormula : atMostK.getFormulas()) {
                     handleFormulaChildren(logicFormula, l1, l2);
                 }
 
-                addConstraint(l1, Operator.LE, atMost.getFormulas().size());
-                addConstraint(l2, Operator.GE, atMost.getK() + 1);
+                addConstraint(l1, Operator.LE, atMostK.getFormulas().size());
+                addConstraint(l2, Operator.GE, atMostK.getK() + 1);
             }
         }
     }
@@ -360,14 +360,14 @@ public class CCMLogicSolver {
             Disjunction disjunction = (Disjunction) formula;
 
             translateDisjunction(disjunction, inheritedName);
-        } else if (formula instanceof AtLeast) {
-            AtLeast atLeast = (AtLeast) formula;
+        } else if (formula instanceof AtLeastK) {
+            AtLeastK atLeastK = (AtLeastK) formula;
 
-            translateAtLeast(atLeast, inheritedName);
-        } else if (formula instanceof AtMost) {
-            AtMost atMost = (AtMost) formula;
+            translateAtLeast(atLeastK, inheritedName);
+        } else if (formula instanceof AtMostK) {
+            AtMostK atMostK = (AtMostK) formula;
 
-            translateAtMost(atMost, inheritedName);
+            translateAtMost(atMostK, inheritedName);
         } else if (formula instanceof ExactK) {
             ExactK exactK = (ExactK) formula;
 
@@ -376,8 +376,8 @@ public class CCMLogicSolver {
             NotExactK notExactK = (NotExactK) formula;
 
             List<LogicFormula> formulas = new ArrayList<>(2);
-            formulas.add(new AtLeast(notExactK.getK() + 1, notExactK.getFormulas()));
-            formulas.add(new AtMost(notExactK.getK() - 1, notExactK.getFormulas()));
+            formulas.add(new AtLeastK(notExactK.getK() + 1, notExactK.getFormulas()));
+            formulas.add(new AtMostK(notExactK.getK() - 1, notExactK.getFormulas()));
 
             translateDisjunction(new Disjunction(formulas), inheritedName);
         } else if (formula instanceof BooleanVariable) {

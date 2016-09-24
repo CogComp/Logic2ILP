@@ -1,23 +1,23 @@
 package edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension;
 
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanLiteral;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanLiteral;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
+import org.apache.commons.lang3.StringUtils;
+
 /**
  *
  */
-public class NotExactK implements LogicFormula {
+public class AtMostK implements LogicFormula {
 
     private int k;
     private List<LogicFormula> formulas;
 
-    public NotExactK(int k, List<LogicFormula> formulas) {
+    public AtMostK(int k, List<LogicFormula> formulas) {
         if (k < 0) {
             throw new RuntimeException("K has to be non-negative.");
         }
@@ -30,7 +30,7 @@ public class NotExactK implements LogicFormula {
         this.formulas = formulas;
     }
 
-    public NotExactK(int k, LogicFormula... formulas) {
+    public AtMostK(int k, LogicFormula... formulas) {
         if (k < 0) {
             throw new RuntimeException("K has to be non-negative.");
         }
@@ -53,17 +53,17 @@ public class NotExactK implements LogicFormula {
 
     @Override
     public LogicFormula negate() {
-        return new ExactK(this.k, this.formulas);
+        return new AtLeastK(this.k + 1, this.formulas);
     }
 
     @Override
     public LogicFormula toNnf() {
-        return new NotExactK(this.k, this.formulas.stream().map(LogicFormula::toNnf).collect(Collectors.toList()));
+        return new AtMostK(this.k, this.formulas.stream().map(LogicFormula::toNnf).collect(Collectors.toList()));
     }
 
     @Override
     public String toString() {
-        return ("NotExact_" + this.k + "_of_" + this.formulas.size() + "("
+        return ("AtMost_" + this.k + "_of_" + this.formulas.size() + "("
                 + StringUtils.join(this.formulas.stream().map(Object::toString).collect(Collectors.toList()), ", ")
                 + ")");
     }

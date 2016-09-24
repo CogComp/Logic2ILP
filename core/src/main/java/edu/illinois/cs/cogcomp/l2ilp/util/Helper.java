@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Conjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Disjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeast;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMost;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeastK;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMostK;
 
 /**
  * Created by haowu on 5/14/16.
@@ -28,11 +28,11 @@ public class Helper {
     }
 
     public static <X> LogicFormula atLeast(int k , Collection<X> colls, Function<X, LogicFormula> fs){
-        return new AtLeast(k, colls.stream().map(fs).collect(Collectors.toList()));
+        return new AtLeastK(k, colls.stream().map(fs).collect(Collectors.toList()));
     }
 
     public static <X> LogicFormula atMost(int k , Collection<X> colls, Function<X, LogicFormula> fs){
-        return new AtMost(k, colls.stream().map(fs).collect(Collectors.toList()));
+        return new AtMostK(k, colls.stream().map(fs).collect(Collectors.toList()));
     }
 
     public static <X> LogicFormula forall(Collection<X> colls, Function<X, LogicFormula> fs){

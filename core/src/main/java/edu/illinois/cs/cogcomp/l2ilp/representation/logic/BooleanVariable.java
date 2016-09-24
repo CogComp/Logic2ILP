@@ -1,17 +1,35 @@
 package edu.illinois.cs.cogcomp.l2ilp.representation.logic;
 
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * This class implements the behavior of a boolean variable in logic formulas.
  * BooleanVariables are identified by their unique ids.
  */
 public class BooleanVariable implements LogicFormula {
 
+    private static Map<String, BooleanVariable> booleanVariables;
+
+    public static BooleanVariable getBooleanVariable(String id) {
+        if (booleanVariables == null) {
+            booleanVariables = new HashMap<>();
+        }
+
+        BooleanVariable booleanVariable = booleanVariables.get(id);
+        if (booleanVariable == null) {
+            booleanVariable = new BooleanVariable(id);
+            booleanVariables.put(id, booleanVariable);
+        }
+
+        return booleanVariable;
+    }
+
     private final String id;
 
-    /**
-     * @param id the id of the BooleanVariable
-     */
-    public BooleanVariable(String id) {
+    private BooleanVariable(String id) {
         if (id == null || "".equals(id)) {
             throw new RuntimeException("BooleanVariable id has to be non-null and non-empty");
         }
@@ -19,15 +37,14 @@ public class BooleanVariable implements LogicFormula {
         this.id = id;
     }
 
-//    @Override
-//    public LogicFormula negate() {
-//        return new Negation(this);
-//    }
-//
-//    @Override
-//    public LogicFormula simplify() {
-//        return this;
-//    }
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public LogicFormula negate() {
+        return new Negation(this);
+    }
 
     @Override
     public LogicFormula toNnf() {
@@ -52,9 +69,5 @@ public class BooleanVariable implements LogicFormula {
     @Override
     public int hashCode() {
         return id.hashCode();
-    }
-
-    public String getId() {
-        return id;
     }
 }

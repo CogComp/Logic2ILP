@@ -1,6 +1,5 @@
 package edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic;
 
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanLiteral;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanVariable;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 

@@ -1,11 +1,9 @@
 package edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic;
 
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanLiteral;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 

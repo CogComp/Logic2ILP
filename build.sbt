@@ -21,16 +21,11 @@ lazy val core = (project in file("core")).
   settings(commonSettings: _*).
   settings(
     libraryDependencies ++= Seq(
-      "com.codepoetics" % "protonpack" % "1.8",
-      "com.googlecode.java-diff-utils" % "diffutils" % "1.2.1",
-      "commons-configuration" % "commons-configuration" % "1.6",
-      "org.jblas" % "jblas" % "1.2.4",
-      "junit" % "junit" % "4.12",
+      "junit" % "junit" % "4.12" % "test",
       "org.apache.commons" % "commons-lang3" % "3.0",
-      "edu.illinois.cs.cogcomp" % "illinois-inference" % "0.6.0",
-      "com.google.code.gson" % "gson" % "2.3.1",
-      "net.sf.trove4j" % "trove4j" % "3.0.3",
-      "org.apache.commons" % "commons-math3" % "3.6.1"
+      "edu.illinois.cs.cogcomp" % "illinois-inference" % "0.6.0"      
+      // "net.sf.trove4j" % "trove4j" % "3.0.3",
+      // "org.apache.commons" % "commons-math3" % "3.6.1"
     )
   )
 

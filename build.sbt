@@ -2,15 +2,14 @@ lazy val commonSettings = Seq(
   organization := "edu.illinois.cs.cogcomp",
   version := "0.1.0",
   autoScalaLibrary := false,
+  resolvers += "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/",
   crossPaths := false
 )
 
 name := "fol_ilp"
 
-resolvers += (
-             "CogcompSoftware" at "http://cogcomp.cs.illinois.edu/m2repo/"
-             )
 
+                       
 resolvers += Resolver.mavenLocal
 
 resolvers += "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository"

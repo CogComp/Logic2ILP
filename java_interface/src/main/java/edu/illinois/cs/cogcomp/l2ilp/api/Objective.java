@@ -14,42 +14,23 @@ import edu.illinois.cs.cogcomp.l2ilp.util.Helper;
  * Created by haowu on 5/14/16.
  */
 public class Objective {
-    List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objectives;
+    List<Pair<String, Double>> objectives;
 
     public Objective(
-        List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> objectives) {
+        List<Pair<String, Double>> objectives) {
         this.objectives = objectives;
     }
 
-    public Objective negative() {
-        List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> negativeObjectives = new ArrayList<>();
-        for (Pair<CCMPredicate, Collection<? extends CCMTerm>> pair : objectives){
-            CCMPredicate m = pair.getKey();
-            CCMPredicate np = new CCMPredicate() {
-                @Override
-                public String getID() {
-                    return m.getID();
-                }
-
-                @Override
-                public double getScore(CCMTerm term) {
-                    return -m.getScore(term);
-                }
-            };
-            negativeObjectives.add(new ImmutablePair<>(np,pair.getRight()));
-        }
-
-        return new Objective(negativeObjectives);
-    }
-
-    public Objective and(List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> o){
+    public Objective and(List<Pair<String, Double>> o){
         this.objectives.addAll(o);
         return this;
     }
 
-    public static <X> Objective sum(CCMPredicate p , Collection<X> coll){
-        List<Pair<CCMPredicate, Collection<? extends CCMTerm>>> o = new ArrayList<>();
-        o.add(new ImmutablePair<>(p ,coll.stream().map(Helper::T).collect(Collectors.toList())));
+    public static Objective sum(WeightedPredicate p , Collection<String> coll){
+        List<Pair<String, Double>> o = new ArrayList<>();
+        for (String t : coll){
+            o.add(new ImmutablePair<>(p.makeIndiactor(t), p.scoreOf(t)));
+        }
         return new Objective(o);
     }
 

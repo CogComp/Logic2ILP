@@ -1,9 +1,9 @@
 package edu.illinois.cs.cogcomp.l2ilp.representation.logic;
 
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
-
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
 
 /**
  * This class implements the behavior of a boolean variable in logic formulas.
@@ -11,13 +11,9 @@ import java.util.Map;
  */
 public class BooleanVariable implements LogicFormula {
 
-    private static Map<String, BooleanVariable> booleanVariables;
+    private static final Map<String, BooleanVariable> booleanVariables = new ConcurrentHashMap<>();
 
     public static BooleanVariable getBooleanVariable(String id) {
-        if (booleanVariables == null) {
-            booleanVariables = new HashMap<>();
-        }
-
         BooleanVariable booleanVariable = booleanVariables.get(id);
         if (booleanVariable == null) {
             booleanVariable = new BooleanVariable(id);
@@ -58,8 +54,12 @@ public class BooleanVariable implements LogicFormula {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         BooleanVariable that = (BooleanVariable) o;
 

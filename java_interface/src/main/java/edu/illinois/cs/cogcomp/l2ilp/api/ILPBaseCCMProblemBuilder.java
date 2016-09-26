@@ -12,6 +12,7 @@ import java.util.List;
 public class ILPBaseCCMProblemBuilder {
 
     private Objective objective;
+    private boolean argmax;
 
     private List<LogicFormula> hardConstraints;
     private List<Pair<LogicFormula, Double>> softConstraints;
@@ -33,7 +34,17 @@ public class ILPBaseCCMProblemBuilder {
         return this;
     }
 
-    public ILPBaseCCMProblem getProblem(){
-        return new ILPBaseCCMProblem(objective.objectives, hardConstraints, softConstraints);
-    };
+    public InferenceProblem getProblem(){
+        InferenceProblem problem = new InferenceProblem(objective.objectives, hardConstraints, softConstraints);
+        if (argmax){
+            problem.setMaximize();
+        }else{
+            problem.setMinimize();
+        }
+        return problem;
+    }
+
+    public void setArgmax(boolean argmax) {
+        this.argmax = argmax;
+    }
 }

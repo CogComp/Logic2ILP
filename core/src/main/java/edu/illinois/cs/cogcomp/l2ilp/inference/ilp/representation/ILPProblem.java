@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import edu.illinois.cs.cogcomp.infer.ilp.GurobiHook;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanVariable;
 
 /**
  * Created by haowu on 9/8/16.
@@ -81,5 +82,9 @@ public class ILPProblem {
         StringBuffer buffer = new StringBuffer();
         solver.write(buffer);
         return buffer.toString();
+    }
+
+    public boolean getBooleanValue(BooleanVariable on) {
+        return this.getBooleanValue(on.getId());
     }
 }

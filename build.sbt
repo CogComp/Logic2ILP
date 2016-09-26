@@ -20,8 +20,6 @@ resolvers +=
 lazy val core = (project in file("core")).
   settings(commonSettings: _*).
   settings(
-//    name := "fol_ilp_core"
-
     libraryDependencies ++= Seq(
       "com.codepoetics" % "protonpack" % "1.8",
       "com.googlecode.java-diff-utils" % "diffutils" % "1.2.1",
@@ -53,8 +51,15 @@ lazy val java_lang = (project in file("java_interface")).dependsOn(core).
     )
   )
 
+lazy val example = (project in file("example")).dependsOn(java_lang).
+  settings(commonSettings: _*).
+  settings(
+    libraryDependencies ++= Seq(
+      "edu.illinois.cs.cogcomp" % "LBJava" % "1.2.24"
+    )
+  )
 
 lazy val main = project.in(file("."))
-  .aggregate(core, core_lang, java_lang)
+  .aggregate(core, core_lang, java_lang, example)
 
 

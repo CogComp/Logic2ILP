@@ -1,9 +1,5 @@
 package edu.illinois.cs.cogcomp.l2ilp.inference;
 
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanLiteral;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicSimplifier;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeastK;
-import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMostK;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.ArrayList;
@@ -12,11 +8,15 @@ import java.util.List;
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.ILPProblem;
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.Linear;
 import edu.illinois.cs.cogcomp.l2ilp.inference.ilp.representation.Operator;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanLiteral;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.BooleanVariable;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicFormula;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.LogicSimplifier;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Conjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Disjunction;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.basic.Negation;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtLeastK;
+import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.AtMostK;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.ExactK;
 import edu.illinois.cs.cogcomp.l2ilp.representation.logic.extension.NotExactK;
 import edu.illinois.cs.cogcomp.l2ilp.util.Counter;
@@ -33,17 +33,19 @@ public class CCMLogicSolver {
     private final Counter constraintCounter;
 
     private ILPProblem problem;
+    boolean maximizeObjective;
 
     public CCMLogicSolver(
-            List<Pair<BooleanVariable, Double>> objective,
-            List<LogicFormula> hardConstraints,
-            List<Pair<LogicFormula, Double>> softConstraints) {
+        List<Pair<BooleanVariable, Double>> objective,
+        List<LogicFormula> hardConstraints,
+        List<Pair<LogicFormula, Double>> softConstraints, boolean maximizeObjective) {
         this.objective = objective;
         this.hardConstraints = hardConstraints;
         this.softConstraints = softConstraints;
         this.variableCounter = new Counter("NV$");
         this.constraintCounter = new Counter("C$");
         this.problem = null;
+        this.maximizeObjective = maximizeObjective;
     }
 
     public ILPProblem getProblem() {
@@ -51,6 +53,7 @@ public class CCMLogicSolver {
     }
 
     public void prepare(ILPProblem problem) {
+        problem.setMaximize(maximizeObjective);
         this.problem = problem;
 
         // Set objective function
@@ -60,21 +63,23 @@ public class CCMLogicSolver {
             problem.introduceVariableToObjective(booleanVariable.getId(), weight);
         }
 
-        problem.setMaximize(true);
-
         // Set hardConstraints
         LogicSimplifier logicSimplifier = new LogicSimplifier().withAllRules();
-        hardConstraints.forEach(constraint -> translate(logicSimplifier.simplify(constraint).toNnf(), null));
+
+        for (LogicFormula constraint : hardConstraints) {
+            LogicFormula simplfiedFormula = logicSimplifier.simplify(constraint).toNnf();
+            translate(simplfiedFormula, null);
+        }
 
         // Set softConstraints
-        softConstraints.forEach(constraintWeightPair -> {
+        for (Pair<LogicFormula, Double> constraintWeightPair : softConstraints) {
             LogicFormula constraint = constraintWeightPair.getKey();
             double weight = constraintWeightPair.getRight();
 
             variableCounter.increment();
             problem.introduceVariableToObjective(variableCounter.toString(), weight);
             translate(logicSimplifier.simplify(constraint).toNnf(), variableCounter.toString());
-        });
+        };
     }
 
     public void solve(ILPProblem ilpProblem) {
@@ -153,12 +158,10 @@ public class CCMLogicSolver {
                 l1.add(1, inheritedName);
                 addConstraint(l1, Operator.EQ, 1);
             }
-        }
-        else {
+        } else {
             if (inheritedName == null) {
                 throw new RuntimeException("The ILP is infeasible.");
-            }
-            else {
+            } else {
                 Linear l1 = new Linear();
                 l1.add(1, inheritedName);
                 addConstraint(l1, Operator.EQ, 0);
@@ -177,8 +180,7 @@ public class CCMLogicSolver {
     private void translateConjunction(Conjunction conjunction, String inheritedName) {
         if (conjunction.getFormulas().size() == 0) {
             translateBooleanLiteral(BooleanLiteral.TRUE, inheritedName);
-        }
-        else {
+        } else {
             if (inheritedName == null) {
                 conjunction.getFormulas().forEach(logicFormula -> translate(logicFormula, null));
             } else {
@@ -187,7 +189,8 @@ public class CCMLogicSolver {
                 l1.add(-conjunction.getFormulas().size(), inheritedName);
                 l2.add(-1, inheritedName);
 
-                conjunction.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
+                conjunction.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
 
                 addConstraint(l1, Operator.GE, 0);
                 addConstraint(l2, Operator.LE, conjunction.getFormulas().size() - 1);
@@ -225,7 +228,8 @@ public class CCMLogicSolver {
                 l1.add(-1, inheritedName);
                 l2.add(-disjunction.getFormulas().size(), inheritedName);
 
-                disjunction.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
+                disjunction.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
 
                 addConstraint(l1, Operator.GE, 0);
                 addConstraint(l2, Operator.LE, 0);
@@ -243,7 +247,8 @@ public class CCMLogicSolver {
                 addNegationConstraint(inheritedName, booleanVariable.getId());
             }
         } else {
-            throw new RuntimeException("toNnf() is not called before translation or its implementation missed something.");
+            throw new RuntimeException(
+                "toNnf() is not called before translation or its implementation missed something.");
         }
     }
 
@@ -254,7 +259,8 @@ public class CCMLogicSolver {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 
-                atLeastK.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1));
+                atLeastK.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1));
 
                 addConstraint(l1, Operator.GE, atLeastK.getK());
             } else {
@@ -263,7 +269,8 @@ public class CCMLogicSolver {
                 l1.add(-atLeastK.getK(), inheritedName);
                 l2.add(-atLeastK.getFormulas().size(), inheritedName);
 
-                atLeastK.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
+                atLeastK.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
 
                 addConstraint(l1, Operator.GE, 0);
                 addConstraint(l2, Operator.LE, atLeastK.getK() - 1);
@@ -278,7 +285,8 @@ public class CCMLogicSolver {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 
-                atMostK.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1));
+                atMostK.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1));
 
                 addConstraint(l1, Operator.LE, atMostK.getK());
             } else {
@@ -287,7 +295,8 @@ public class CCMLogicSolver {
                 l1.add(atMostK.getFormulas().size() - atMostK.getK(), inheritedName);
                 l2.add(atMostK.getFormulas().size(), inheritedName);
 
-                atMostK.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
+                atMostK.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2));
 
                 addConstraint(l1, Operator.LE, atMostK.getFormulas().size());
                 addConstraint(l2, Operator.GE, atMostK.getK() + 1);
@@ -298,12 +307,12 @@ public class CCMLogicSolver {
     private void translateExactK(ExactK exactK, String inheritedName) {
         if (exactK.getK() > exactK.getFormulas().size()) {
             translateBooleanLiteral(BooleanLiteral.FALSE, inheritedName);
-        }
-        else {
+        } else {
             if (inheritedName == null) {
                 Linear l1 = new Linear();
 
-                exactK.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1));
+                exactK.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1));
 
                 addConstraint(l1, Operator.EQ, exactK.getK());
             } else {
@@ -316,7 +325,8 @@ public class CCMLogicSolver {
                 l3.add(exactK.getFormulas().size() - exactK.getK(), inheritedName);
                 l4.add(exactK.getFormulas().size(), inheritedName);
 
-                exactK.getFormulas().forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2, l3, l4));
+                exactK.getFormulas()
+                    .forEach(logicFormula -> translateChildFormula(logicFormula, l1, l2, l3, l4));
 
                 addConstraint(l1, Operator.GE, 0);
                 addConstraint(l2, Operator.LE, exactK.getK() - 1);
@@ -329,8 +339,7 @@ public class CCMLogicSolver {
     private void translateNotExactK(NotExactK notExactK, String inheritedName) {
         if (notExactK.getK() > notExactK.getFormulas().size()) {
             translateBooleanLiteral(BooleanLiteral.TRUE, inheritedName);
-        }
-        else {
+        } else {
             List<LogicFormula> formulas = new ArrayList<>(2);
             formulas.add(new AtLeastK(notExactK.getK() + 1, notExactK.getFormulas()));
             formulas.add(new AtMostK(notExactK.getK() - 1, notExactK.getFormulas()));
@@ -342,33 +351,25 @@ public class CCMLogicSolver {
     private void translate(LogicFormula logicFormula, String inheritedName) {
         if (logicFormula instanceof BooleanLiteral) {
             translateBooleanLiteral((BooleanLiteral) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof BooleanVariable) {
+        } else if (logicFormula instanceof BooleanVariable) {
             translateBooleanVariable((BooleanVariable) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof Conjunction) {
+        } else if (logicFormula instanceof Conjunction) {
             translateConjunction((Conjunction) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof Disjunction) {
+        } else if (logicFormula instanceof Disjunction) {
             translateDisjunction((Disjunction) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof Negation) {
+        } else if (logicFormula instanceof Negation) {
             translateNegation((Negation) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof AtLeastK) {
+        } else if (logicFormula instanceof AtLeastK) {
             translateAtLeast((AtLeastK) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof AtMostK) {
+        } else if (logicFormula instanceof AtMostK) {
             translateAtMost((AtMostK) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof ExactK) {
+        } else if (logicFormula instanceof ExactK) {
             translateExactK((ExactK) logicFormula, inheritedName);
-        }
-        else if (logicFormula instanceof NotExactK) {
+        } else if (logicFormula instanceof NotExactK) {
             translateNotExactK((NotExactK) logicFormula, inheritedName);
-        }
-        else {
-            throw new RuntimeException("LogicFormula implementation " + logicFormula.getClass() + " is not supported yet.");
+        } else {
+            throw new RuntimeException("LogicFormula implementation " + logicFormula.getClass()
+                                       + " is not supported yet.");
         }
     }
 }

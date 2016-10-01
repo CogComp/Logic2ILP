@@ -40,12 +40,10 @@ public class InferenceProblem {
     }
 
     public ILPProblem getProblem(ILPSolver solver) {
-        CCMLogicSolver
-            ccmSolver = new CCMLogicSolver(objective, hardConstraints, softConstraints, this.maxinizing);
-
         ILPProblem problem = new ILPProblem(solver);
         problem.setMaximize(maxinizing);
-        ccmSolver.prepare(problem);
+        CCMLogicSolver
+                ccmSolver = new CCMLogicSolver(objective, hardConstraints, softConstraints, this.maxinizing, problem);
 
         if (this.debug) {
             System.out.println(problem.toString());
